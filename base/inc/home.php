@@ -1,0 +1,3 @@
+<?
+header("Location: ".$ctx."dashboard");
+?>

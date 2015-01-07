@@ -1,0 +1,93 @@
+table : users				: 사용자 정보
+	id
+	email
+	password
+	username
+	role				0 - user, 99 - admin
+	last_login
+	remember_token
+	created_at
+	updated_at
+	deleted_at
+	
+table : setting_defs		: 설정 항목 정의
+	id
+	setting_id
+	title
+	desc
+	created_at
+	updated_at
+	
+table : user_settings		: 사용자 별 설정 저장
+	id
+	user_id				0 - default value
+	setting_id
+	value
+	created_at
+	updated_at
+	deleted_at
+	
+table : memos				: 메모
+	id
+	user_id
+	title
+	context
+	filename
+	attach_key
+	attach_type
+	created_at
+	updated_at
+	deleted_at
+	
+table : stamp_cards			: 스템프 카드
+	id
+	user_id
+	goal
+	reset_type
+	reset_day
+	max_stamp_num
+	end_date
+	stamp_theme_id
+	input_value			{'Y', 'N'}
+	created_at
+	updated_at
+	deleted_at
+	
+table : stamps				: 스템프
+	id
+	user_id
+	stamp_card_id
+	stamp_card_type		???
+	stamp_theme_id		???
+	value
+	stamped_at
+	created_at
+	updated_at
+	deleted_at
+	
+table : records				: Money Book Record
+	id
+	user_id
+	type				{'INC', 'OUT'}
+	value
+	target_at
+	context
+	created_at
+	updated_at
+	deleted_at
+	
+table : boards				: User Board
+	id
+	user_id
+	title
+	context
+	status
+	created_at
+	updated_at
+	deleted_at
+	
+	
+추가되야할 테이블
+	- 사용자 디테일(사진, 프로필 등)
+	- 글로벌 설정 저장 테이블
+	

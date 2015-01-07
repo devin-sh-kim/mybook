@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bootstrap 101 Template</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+  </head>
+  <body>
+    <h1>Hello, world!</h1>
+    <div id="alert-settings"></div>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#rating-modal">
+  Write a Review
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="rating-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">Your Review</h4>
+      </div>
+      <div class="modal-body">
+        <form data-async data-target="event|close|#alert-settings" action="some-endpoint.php" method="POST">
+            <fieldset>
+             <!-- form content -->
+             <input name="test1">
+             <input name="test2">
+            </fieldset>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        
+
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+    
+    <script src="http://code.jquery.com/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    
+    <script>
+    jQuery(function($) {
+    $('.modal').on('submit','form[data-async]', function(event) {
+        var $form = $(this);
+        var target = $form.attr('data-target');
+
+        $.ajax({
+            type: $form.attr('method'),
+            url: $form.attr('action'),
+            data: $form.serialize(),
+
+            success: function(data, status) {
+                $.each(target.split("|"),function(i,val){
+                    if(val == "close"){
+                        $form.closest(".modal").modal("hide");
+                    }else if(val == "event"){
+                        $form.trigger("ajax-submit");
+                    }else{
+                        $(val).html(data);
+                    }
+                });
+            }
+        });
+
+        event.preventDefault();
+    });
+    });
+    </script>
+    
+  </body>
+</html>

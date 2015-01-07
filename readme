@@ -1,0 +1,21 @@
+컨셉
+- 월 단위로 수입 관리, 지출 계획, 지출 현황 관리
+- 수입 및 지출 기록
+- 고정 지출 기록
+- 월 단위 통계
+- 항목별 통계
+- 월 시작 일자 지정
+- 자산(지갑, 통장) 관리
+- 카드 관리
+- 메모 기능 제공
+- 관리자 기능
+    - 사용자 관리
+
+
+
+Ajax Submit
+https://gist.github.com/havvg/3226804
+
+https://datatables.net/
+//cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css
+//cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js
