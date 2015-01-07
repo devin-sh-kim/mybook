@@ -1,5 +1,7 @@
 <?php
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Create The Application
@@ -24,11 +26,11 @@ $app = new Illuminate\Foundation\Application;
 |
 */
 
-$env = $app->detectEnvironment(array(
+Dotenv::load(__DIR__.'/..');
 
-	'local' => array('PLAY_NAS'),
-
-));
+$env = $app->detectEnvironment(function (){
+    return getenv('APP_ENV');
+});
 
 /*
 |--------------------------------------------------------------------------
