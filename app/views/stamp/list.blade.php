@@ -8,6 +8,10 @@
 .pn {
     height: auto;
 }
+
+i.red {
+    color: #bd0a0a;
+}
 </style>
 
 <!--main content start-->
@@ -33,7 +37,7 @@
 						        <div class="row">
                                     <div class="col-xs-3">
                                         <div style="padding-left:20px;padding-bottom:15px;">
-                                            <i class="fa fa-paw fa-5x"></i>
+                                            <i class="fa fa-paw fa-5x @if($stampCard->stamp_count ==  $stampCard->max_stamp_num) red @endif"></i>
                                         </div>
                                     </div>
                                     <div class="col-xs-9 text-right">
@@ -73,10 +77,25 @@
                                 @elseif(  $stampCard->reset_type == '3'  )
                      				매월 시작
                                 @endif
-                                
-                                {{ $stampCard->prev_stamp_count }}
-                                
                                 </span>
+                                
+                                
+                                @if( $stampCard->reset_type != '0' )
+                                <span class="pull-right small">
+                                    @if( $stampCard->reset_type == '1' )
+                                        어제
+                                    @endif
+                                    @if( $stampCard->reset_type == '3' )
+                                        지난 달
+                                    @endif
+                                    @if( $stampCard->reset_type == '2' )
+                                        지난 주
+                                    @endif
+                                    {{ $stampCard->prev_stamp_count }}
+                                </span>
+                                @endif
+                                
+                                
                                 <!--
                                 <a href="{{ url('stamp/' . $stampCard->id ) }}">
                                 	<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>

@@ -15,13 +15,26 @@ class StampController extends \BaseController {
 	public function index()
 	{
 		
-		$stampCards = StampCard::where('user_id', '=', Auth::user()->id)->get();
+		$stampCards = StampCard::where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'desc')->get();
 
 		foreach( $stampCards as $stampCard ){
 			$stampCard->stamp_count = $this->getStampCount($stampCard);
 			
 			$prevDate = new DateTime();
-			$prevDate->modify('-1 day');
+			
+			if( $stampCard->reset_type == '0' ){
+			    
+			} else if( $stampCard->reset_type == '1' ){
+			    // 어제
+			    $prevDate->modify('-1 day');
+			} else if( $stampCard->reset_type == '2' ){
+			    // 일주일 전
+			    $prevDate->modify('-7 day');
+			} else if( $stampCard->reset_type == '3' ){
+			    // 1달 전
+			    $prevDate->modify('-1 month');
+			}
+			
 			$stampCard->prev_stamp_count = $this->getStampCount($stampCard, $prevDate);
 			//dd($stampCard->prev_stamp_count);
 		}
@@ -205,50 +218,54 @@ class StampController extends \BaseController {
 
     public function dailyStampChartJson($id){
         
-        $chartData = DB::table('stamps')
-                            ->select(DB::raw("COUNT(*) as value, DATE_FORMAT(stamped_at,'%Y-%m-%d') as stamp"))
+        $chartData = Stamp::select(DB::raw("COUNT(*) as value, DATE_FORMAT(stamped_at,'%Y-%m-%d') as stamp"))
                             ->where('stamp_card_id', '=', $id)
         //                    ->whereBetween('stamped_at', array($start, $end))
                             ->orderBy('created_at')
                             ->groupBy('stamped_at')
                             ->get();
         
-        foreach($chartData as $d){
-            $arrayData[$d->stamp] = array('value' => $d->value, 'stamp' => $d->stamp);
-        }
-
+        $array = array();
+        
         if(count($chartData) > 0){
-            
-            
-            $start = $chartData[0]->stamp;
-            $end = $chartData[count($chartData) -1]->stamp;
-            
-            //dd($start . " - " . $end);
-            
-            $startDate = new DateTime($start);
-            $endDate = new DateTime($end);
-            $diffDays = $endDate->diff($startDate)->days;
-            //dd($diffDays);
-            
-            for($i = 0; $i < $diffDays; $i++){
-                $startDate->modify("+1 day");
-                $dateStr = $startDate->format("Y-m-d");
-                
-                if(isset($arrayData[$dateStr])){
-                    
-                }else{
-                    $arrayData[$dateStr] = array('value' => '0', 'stamp' => $dateStr);
-                }
-                
-            }
-            
+	        foreach($chartData as $d){
+	            $arrayData[$d->stamp] = array('value' => $d->value, 'stamp' => $d->stamp);
+	        }
+	
+	        if(count($chartData) > 0){
+	            
+	            
+	            $start = $chartData[0]->stamp;
+	            $end = $chartData[count($chartData) -1]->stamp;
+	            
+	            //dd($start . " - " . $end);
+	            
+	            $startDate = new DateTime($start);
+	            $endDate = new DateTime($end);
+	            $diffDays = $endDate->diff($startDate)->days;
+	            //dd($diffDays);
+	            
+	            for($i = 0; $i < $diffDays; $i++){
+	                $startDate->modify("+1 day");
+	                $dateStr = $startDate->format("Y-m-d");
+	                
+	                if(isset($arrayData[$dateStr])){
+	                    
+	                }else{
+	                    $arrayData[$dateStr] = array('value' => '0', 'stamp' => $dateStr);
+	                }
+	                
+	            }
+	            
+	        }
+	
+	        $array = array_values(array_sort($arrayData, function($value)
+	            {
+	                return $value['stamp']; 
+	            }
+	        ));
+	        	
         }
-
-        $array = array_values(array_sort($arrayData, function($value)
-            {
-                return $value['stamp']; 
-            }
-        ));
             
         
         return Response::json($array);
@@ -256,9 +273,9 @@ class StampController extends \BaseController {
 
     public function userValueChartJson($id){
         
-        $chartData = DB::table('stamps')
-                            ->select(DB::raw("value, DATE_FORMAT(created_at,'%Y-%m-%d %H:%i') as stamp"))
+        $chartData = Stamp::select(DB::raw("value, DATE_FORMAT(created_at,'%Y-%m-%d %H:%i') as stamp"))
                             ->where('stamp_card_id', '=', $id)
+                            ->where('value', '!=', '')
         //                    ->whereBetween('stamped_at', array($start, $end))
                             ->orderBy('id')
                             ->get();

@@ -3,9 +3,9 @@
 <!--main content start-->
 <section id="main-content">
     <section class="wrapper site-min-height">
-        <h3><i class="fa fa-angle-right"></i> Memo</h3>
+        <h3><i class="fa fa-file-text"></i> Memo</h3>
         
-        {{ link_to('memo/create', 'Write', $attributes = array('class'  => 'btn btn-theme')); }}
+        {{ link_to('memo/create', 'New', $attributes = array('class'  => 'btn btn-theme')); }}
         
         <div class="row mt">
             <div class="col-lg-12">

@@ -104,7 +104,8 @@ i.stamp-calender.grey {
 	                    	<ul class="nav nav-pills" id="stampTab">
 	                            <li class="active"><a id="tab-card" href="#context-card" data-toggle="tab">카드</a></li>
 	                            <li><a id="tab-calendar" href="#context-calendar" data-toggle="tab">달력</a></li>
-	                            <li><a id="tab-chart" href="{{ url('/stamp/' . $stampCard->id . '/chart'); }}">챠트</a></li>
+	                            <li><a id="link-chart" class="link" href="{{ url('/stamp/' . $stampCard->id . '/chart'); }}">챠트</a></li>
+	                            <li><a id="link-goback" class="link" href="{{ url('/stamp'); }}">돌아가기</a></li>
 	                        </ul>
 	            		</div>
 	                	<div class="pull-right">
@@ -167,20 +168,14 @@ i.stamp-calender.grey {
 		                                    @elseif(  $stampCard->reset_type == '3'  )
 		                                        매월 시작
 		                                    @endif
-		                                    ({{ $stampCard->stamp_count }}/{{ $stampCard->max_stamp_num }})
+		                                    (<span id="label_stamp_count">0</span>/{{ $stampCard->max_stamp_num }})
 		    							</div>
 									</div>
 									
 	                                <div id="stamps">
 		    					        <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2">
-		                				        @for ($i = 0; $i < $stampCard->max_stamp_num; $i++)
-		                					        @if( $stampCard->max_stamp_num <= 20 )
-		    						                    @if( ($i % 4) == 0 )
-		    	        					        <!--br-->
-		        	        					        @endif
-		                					        @endif
+	                				        @for ($i = 0; $i < $stampCard->max_stamp_num; $i++)
 		    									<i class="fa fa-paw fa-4x stamp-it"></i>
-		    									
 		                                    @endfor
 			                  			</div>
 									</div>
@@ -240,6 +235,8 @@ i.stamp-calender.grey {
 
 
 {{ HTML::script('js/bootstrap-js/tab.js'); }}
+{{ HTML::script('js/bootstrap-js/tooltip.js'); }}
+
 {{ HTML::script('js/moment.js'); }}
 {{ HTML::script('js/fullcalendar/fullcalendar.js'); }}
 
@@ -257,9 +254,9 @@ $(function(){
     // tab
     $('#stampTab a').click(function (e) {
     
-        if($(this).attr("id") == "tab-chart"){
+        if($(this).hasClass("link")){
             url = $(this).attr("href");
-            console.log("CHART : " + url);
+            
             window.location = url;
             return;
         }
@@ -361,6 +358,12 @@ $(function(){
 
 
 function stampIt(n, max){
+    $("#complete").hide();
+    $("#btn-stamp").prop("disabled", "");
+	$("#btn-stamp").text('스템프 찍기');
+
+    $("#label_stamp_count").html(n);
+
 	$("i.stamp-it").each( function( index ){
 		if(index < n){
 			$(this).addClass('red');

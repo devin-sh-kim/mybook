@@ -7,7 +7,7 @@
 <!--main content start-->
 <section id="main-content">
     <section class="wrapper site-min-height">
-        <h3><i class="fa fa-paw"></i> Money Book</h3>
+        <h3><i class="fa fa-money"></i> Money Book</h3>
         
 		
 		<div class="row mt">
@@ -28,7 +28,7 @@
 			
 					<div class="row mt">
 						<div class="col-lg-12">
-							<button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#writeModal">등록</button>
+							<button type="button" class="btn btn-primary btn-block" id="btnWriteRecord">등록</button>
 						</div>
 					</div>
 				</div>
@@ -49,7 +49,7 @@
 			</div>
 			<div class="modal-body">
 				<div>
-					{{ Form::open(array('id' => 'recordForm', 'url' => 'moneybook', 'class' => 'form-horizontal style-form', 'data-async')) }}
+					{{ Form::open(array('id' => 'recordForm', 'url' => 'record', 'class' => 'form-horizontal style-form', 'data-async')) }}
 
                         <div class="form-group">
                             {{ Form::label('target_at', '날짜', array('class' => 'col-sm-2 control-label')); }}
@@ -151,6 +151,8 @@
 
 var table;
 
+
+
 function validate(evt) {
   var theEvent = evt || window.event;
   var key = theEvent.keyCode || theEvent.which;
@@ -168,15 +170,38 @@ function numberWithCommas(x) {
     return parts.join(".");
 }
 
+function today() {
+    return new Date();
+}
+
+// Get formatted date YYYY-MM-DD
+function getFormattedDate(date) {
+    return date.getFullYear()
+        + "-"
+        + ("0" + (date.getMonth() + 1)).slice(-2)
+        + "-"
+        + ("0" + date.getDate()).slice(-2);
+}
+
+
+function writeRecordModel(){
+    
+    
+    $("#target_at").val(getFormattedDate(today()));
+    
+    $('#writeModal').modal('show');
+    
+}
+
 function editRecordModal(id){
 	
-	console.log("edit : " + id);
+	//console.log("edit : " + id);
 	
 	
 	
 	$('#target_at').val("2014-01-01");
 	
-	console.log($('#target_at').val());
+	//console.log($('#target_at').val());
 	
 	$('#writeModal').modal('show');
 
@@ -314,6 +339,9 @@ $(function(){
         });
     });
 
+    $('#btnWriteRecord').on('click', function(){
+        writeRecordModel();
+    });
     
 });
 

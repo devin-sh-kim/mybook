@@ -81,12 +81,14 @@ Route::get('api/user/{id}', 'UserController@getUser');
 */
 Route::group(array('before' => 'auth'), function()
 {
-    Route::get('dashboard',  array('uses' => 'DashboardController@dashboard', 'as' => 'dashboard'));
+    // Dashboard
+    Route::get('dashboard', array('uses' => 'DashboardController@dashboard', 'as' => 'dashboard'));
     
+    // Memos
     Route::resource('memo', 'MemoController');
     Route::get('memo/attach/{id}', 'MemoController@getAttachFile');
     
-    
+    // Stamp
     Route::resource('stamp', 'StampController');
     Route::get('stamp/{id}/add', 'StampController@addStamp');
     Route::delete('stamp/{id}/last', 'StampController@removeLastStamp');
@@ -95,14 +97,15 @@ Route::group(array('before' => 'auth'), function()
     Route::get('stamp/{id}/chart', 'StampController@chart');
     Route::get('stamp/{id}/dailyStampChart.json', 'StampController@dailyStampChartJson');
     Route::get('stamp/{id}/userValueChart.json', 'StampController@userValueChartJson');
-    
-    
-    Route::resource('board', 'BoardController');
-    
-    Route::resource('moneybook', 'MoneyBookController');
-    
-    Route::resource('record', 'RecordController');
 
+    // Moneybook
+    Route::resource('moneybook',    'MoneyBookController');
+    Route::resource('record',       'RecordController');
+    Route::resource('fixExpRecord', 'FixExpRecordController');
+    Route::resource('moneybook-setting', 'MoneyBookSettingController');
+
+    // Boards
+    Route::resource('board',        'BoardController');
     
 });
 

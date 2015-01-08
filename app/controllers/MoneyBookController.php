@@ -135,9 +135,17 @@ class MoneyBookController extends \BaseController {
 
     private function makeRange($start_day){
         $date = new DateTime();
+
+        $today = $date->format('d');
+		
+		$date->setDate($date->format('Y'), $date->format('m'), $start_day);
+		
+		if($today < $start_day){
+		    $date->modify("-1 month");
+		}
 			
 		//$date->setDate('2014', '9', '23');
-		$date->setDate($date->format('Y'), $date->format('m'), $start_day);
+		
 		$start = $date->format('Y-m-d');
 
 		$date->modify("+1 months");

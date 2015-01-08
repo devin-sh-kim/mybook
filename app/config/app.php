@@ -78,8 +78,7 @@ return array(
 	|
 	*/
 
-	//'key' => 'xY9G1coo95J8lIjYhvpclIjh6qaLVYeD',
-	'key' => 'P2aqEZVwYEygLQxrolRinZ554GVb5yjK',
+	'key' => getenv('ENC_KEY'),
 
 	'cipher' => MCRYPT_RIJNDAEL_128,
 

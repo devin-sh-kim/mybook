@@ -75,6 +75,19 @@ table : records				: Money Book Record
 	created_at
 	updated_at
 	deleted_at
+
+table : fix_exp_records     : 고정 수입/지출
+    id
+	user_id
+	type				{'INC', 'OUT'}
+	value
+	cycle_type
+	cycle_day
+	context
+	created_at
+	updated_at
+	deleted_at
+
 	
 table : boards				: User Board
 	id

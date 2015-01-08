@@ -101,7 +101,7 @@ $(function(){
 		ykeys: ['value'],
 		// Labels for the ykeys -- will be displayed when you hover over the
 		// chart.
-		labels: ['입력'],
+		labels: ['스템프'],
 		
 		resize: true,
 		
