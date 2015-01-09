@@ -26,7 +26,7 @@
                             </div>
                         </div>
 
-						    @if ( $memo->attach != '' )
+						    @if ( $memo->attach_key != '' )
                         	<div class="form-group">
                         
                             	

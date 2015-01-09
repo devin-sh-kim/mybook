@@ -1,7 +1,7 @@
 <?php
 use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
-class User extends Eloquent {
+class Board extends Eloquent {
 
 	use SoftDeletingTrait;
 

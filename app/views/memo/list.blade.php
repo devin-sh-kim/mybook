@@ -25,10 +25,10 @@
 							@endif
 								<div class="memo-title">
 								    <a href="{{ url('memo/' . $memo->id); }}">{{ $memo->title }}</a>
-								    <? $wordWrap = 120; ?>
+								    <?php $wordWrap = 120; ?>
 								    @if ( $memo->attach_type != '' )
 								        @if ( starts_with( $memo->attach_type, 'image' ) )
-								        <? $wordWrap = 60; ?>
+								        <?php $wordWrap = 60; ?>
 								        <span class="glyphicon glyphicon-picture"></span>
 								        @else
 								        <span class="glyphicon glyphicon-paperclip"></span>

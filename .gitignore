@@ -8,4 +8,5 @@ composer.lock
 Thumbs.db
 .env
 /base
-/attach
+/attach/*
+.c9

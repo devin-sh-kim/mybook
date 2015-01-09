@@ -30,7 +30,7 @@ pre {
                     <hr/>
                     {{ Form::open(array('url' => 'memo', 'class' => 'form-horizontal style-form')) }}
                         
-                        @if ( $memo->attach != '' )
+                        @if ( $memo->attach_key != '' )
                         <div class="form-group">
                         
                             @if ( starts_with( $memo->attach_type, 'image' ) )

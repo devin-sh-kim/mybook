@@ -45,12 +45,12 @@
 			<h2 class="form-login-heading">sign in now</h2>
 
 			<div class="login-wrap">
-				<? if(isset($loginError) && $loginError == true){ ?>
+				@if(isset($loginError) && $loginError == true)
 				<div class="alert alert-warning alert-dismissable fade in" id="login-error">
     				<a class="close" data-dismiss="alert" href="#" aria-hidden="true">×</a>
     				등록되지 않은 계정<br/> 또는 비밀번호가 맞지 않습니다.
 				</div>
-				<? } ?>
+				@endif
 				<div class="alert alert-success alert-dismissable fade in" id="signup-success">
     				<a class="close" data-dismiss="alert" href="#" aria-hidden="true">×</a>
     				계정이 생성되었습니다.

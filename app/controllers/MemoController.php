@@ -110,7 +110,7 @@ class MemoController extends \BaseController {
 	public function show($id)
 	{
 		$memo = Memo::findOrFail($id);
-		
+		//dd($memo);
 		if( $memo->user_id != Auth::user()->id){
 		    return Response::make('Forbidden', 403);
 		}
