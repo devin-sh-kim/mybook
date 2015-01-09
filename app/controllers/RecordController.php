@@ -19,6 +19,25 @@ class RecordController extends \BaseController {
         $start = Input::get('start');
         $end = Input::get('end');
 
+        $array_data = array('data' => array());
+
+        //전월 계산
+        $prevBalance = Record::getPrevBalance($user_id, $start);
+        
+        $array_record = array(
+			        'id'            => '0',
+			        'date_disp'     => '-', 
+			        'target_at'     => '-', 
+			        'type_name'     => '수입', 
+			        'context'       => '지난달 남은 돈', 
+			        'value_disp'    => number_format($prevBalance),
+			        'sum_disp'      => number_format($prevBalance),
+        );
+		$array_data['data'][0] = $array_record;
+
+
+        //금월
+        $sum = $prevBalance;
         $records = Record::select(DB::raw("DATE_FORMAT(target_at, '%m. %d') as date_disp"), "target_at", "type", "context", "value", "id")
             ->where('user_id', '=', $user_id)
             ->whereBetween('target_at', array($start, $end))
@@ -26,15 +45,9 @@ class RecordController extends \BaseController {
             ->orderBy('type', 'asc')
             ->orderBy('created_at', 'asc')
             ->get();
-        //dd($records);
-        $array_data = array('data' => array());
-        
-        $sum = 0;
-        $prev = 0;
-        for ($i = 0; $i < count($records); $i++) {
+
+        foreach ($records as $record) {
             //var_dump($record->context);
-            
-            $record = $records[$i];
             
             if($record->type == 'INC'){
                 $record->type_name = '수입';
@@ -58,7 +71,7 @@ class RecordController extends \BaseController {
 			        'sum_disp'      => $record->sum_disp
             );
 			
-		    $array_data['data'][$i] = $array_record;
+		    $array_data['data'][count($array_data['data'])] = $array_record;
 		    
         }
         

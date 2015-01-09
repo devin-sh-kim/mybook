@@ -49,10 +49,10 @@
                                 	'27' => '27일', 
                                 	'28' => '28일', 
                                 	), $setting->startDay, array('class' => 'form-control')); }}
+                                </div>
                             </div>
+                            
                         </div>
-                        
-                    </div>
                         <button type="submit" class="btn btn-primary btn-lg btn-block">저장</button>
                     {{ Form::close() }}
 				</div>

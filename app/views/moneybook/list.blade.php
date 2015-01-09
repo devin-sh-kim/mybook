@@ -88,10 +88,9 @@
                             {{ Form::label('value', '금액', array('class' => 'col-sm-2 control-label')); }}
                             <div class="col-sm-8">
                                 {{ Form::text('value', '', array('class' => 'form-control number', 'min' => '1', 'placeholder' => '금액을 입력하세요', 'id'=>'value', 'onkeypress'=>'validate(event)' , 'style'=>'text-align:right;')); }}
-                	                </div>
-                        
+                	            </div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg btn-block">확인</button>
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">확인</button>
                     {{ Form::close() }}				
 				
 				</div>

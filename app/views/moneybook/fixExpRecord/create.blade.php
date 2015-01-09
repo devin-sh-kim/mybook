@@ -1,33 +1,41 @@
+@section('style')
+<link rel="stylesheet" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css">
+@stop
+
 @section('content')
 
 <!--main content start-->
 <section id="main-content">
     <section class="wrapper site-min-height">
-        <h3><i class="fa fa-angle-paw"></i> 도장 쾅!!</h3>
-        
-        <div class="row mt">
-            <div class="col-lg-12">
-                <div class="form-panel">
-                    <h4><i class="fa fa-angle-right"></i> 카드 만들기</h4>
-                    {{ Form::open(array('url' => 'stamp', 'class' => 'form-horizontal style-form')) }}
+        <h3><i class="fa fa-money"></i> Money Book</h3>
+
+		<div class="row mt">
+			<div class="col-lg-12">
+				<div class="showback">
+					<h4>고정 비용 관리</h4>
+
+					{{ Form::open(array('url' => url('/fixExpRecord'), 'class' => 'form-horizontal style-form')) }}
                         
                         <div class="form-group">
-                            {{ Form::label('goal', '목표', array('class' => 'col-sm-2 control-label')); }}
+                            {{ Form::label('type', '수입/지출', array('class' => 'col-sm-2 control-label')); }}
                             <div class="col-sm-8">
-                                {{ Form::text('goal', '', array('class' => 'form-control', 'placeholder' => '목표를 설정하세요')); }}
-                                {{ Form::checkbox('input_value', 'Y', false, array('id' => 'input_value')); }}
-                                {{ Form::label('input_value', '수치 입력 가능', array('class' => 'control-label')); }}
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            {{ Form::label('max_stamp_num', '목표 스탬프', array('class' => 'col-sm-2 control-label')); }}
-                            <div class="col-sm-8">
-                                {{ Form::number('max_stamp_num', '', array('class' => 'form-control', 'min' => '1', 'placeholder' => '목표 스탬프 갯수를 입력하세요')); }}
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
+                                <div class="row">
+                     	
+                                    <div class="col-sm-12">
+                                        <div class="btn-group btn-group-justified" data-toggle="buttons">
+                                            <label class="btn btn-default">
+                                                <input type="radio" name="type" id="record_type_inc" value="INC">수입
+                                            </label>
+                                            <label class="btn btn-default">
+                                                <input type="radio" name="type" id="record_type_out" value="OUT">지출
+                                            </label>
+                                		</div>
+                                	</div>
+                                </div>
+							</div>
+						</div>
+						
+						<div class="form-group">
                             {{ Form::label('attach', '신규 발행', array('class' => 'col-sm-2 control-label')); }}
                             <div class="col-sm-8">
                                 <div class="row">
@@ -81,40 +89,28 @@
 								</div>
 							</div>
 						</div>
-                        <div class="form-group">
-                            {{ Form::label('end_date', '종료일', array('class' => 'col-sm-2 control-label')); }}
-                            <div class="col-sm-8">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-addon">
-                                        <input type="checkbox" id="end_date_able">
-                                    </span>
-                                    <input type="date" class="form-control" name="end_date" id="end_date" disabled="disabled">
-                                </div>
-		                    </div>
-                            </div>
-                                    <div class="col-sm-8">
-                            <div class="col-sm-8">
-                                
-                            
-                        </div>
-                    </div>
-
-                        <button type="submit" class="btn btn-primary btn-lg btn-block">Create Stamp Card</button>
+                        
+                        
+                        
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">저장</button>
                     {{ Form::close() }}
-                </div>
-            </div>
-        </div>
-
+				</div>
+			</div>
+		</div>
+		
     </section><! --/wrapper -->
 </section><!-- /MAIN CONTENT -->
 <!--main content end-->
 
-@stop
 
+@stop
 @section('script')
 <!-- js placed at the end of the document so the pages load faster -->
 {{ HTML::script('js/jquery.js'); }}
 {{ HTML::script('js/bootstrap.min.js'); }}
+<!--
+{{ HTML::script('js/bootstrap-js/modal.js'); }}
+-->
 {{ HTML::script('js/jquery-ui-1.9.2.custom.min.js'); }}
 {{ HTML::script('js/jquery.ui.touch-punch.min.js'); }}
 {{ HTML::script('js/jquery.dcjqaccordion.2.7.js'); }}
@@ -126,31 +122,12 @@
 {{ HTML::script('js/common-scripts.js'); }}
 
 <!--script for this page-->
-{{ HTML::script('js/bootstrap-js/button.js'); }}
 
 <script>
 
+
 $(function(){
-	
-	$( '#weekly' ).hide();
-	
-	$("[name='reset_type']").change(function (){
-		
-	    if( $(this).val() == '2' ){
-	    	$( '#weekly' ).fadeIn();
-	    }else{
-	    	$( '#weekly' ).fadeOut();
-	    }
-	});
-	
-	$( '#end_date_able' ).change(function (){
-		if( $( '#end_date_able' ).prop( "checked" ) ){
-			$( '#end_date' ).prop("disabled", "");
-		}else{
-			$( '#end_date' ).prop("disabled", "disabled");
-		}
-	});
-	
+
 });
 
 

@@ -132,7 +132,7 @@ i.stamp-calender.grey {
 	                	    <! -- Stamp Card Panel -->
 	                	    <div class="col-lg-12">
 							    <div class="stamp-card-panel pn">
-							    	<div id="complete">
+							    	<div id="complete" style="display:none;">
 		                                <img src="{{ url('img/mc.png'); }}" width="180px"/>
 							        </div>
 							        
