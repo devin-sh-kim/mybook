@@ -78,10 +78,94 @@ class RecordController extends \BaseController {
         // $total_record = array('','','', number_format($sum));
         // $array_data['data'][count($records)] = $total_record;
         
-        return Response::json($array_data);
+        // 고정 지출 포함
+        $fixExpRecords = FixExpRecord::where('user_id', '=', Auth::id())->get();
+        
+        $result = $this->makeResult($start, $end, $records, $fixExpRecords, $prevBalance);
+        
+        
+        return Response::json($result);
+        
+        //return Response::json($array_data);
         
 	}
 
+	private function makeResult($start, $end, $records, $fixExpRecords, $prevBalance){
+		
+		$result = array('data' => array());
+		
+		$current_date = date_create_from_format('Y-m-d', $start);;
+		$end_date = date_create_from_format('Y-m-d', $end);;
+		
+		if($current_date > $end_date){
+			return null;
+		}
+		
+		while($current_date <= $end_date){
+			//$result['data'][count($result['data'])] = $current_date->format('Y-m-d');
+			
+			$year = $current_date->format('Y');
+			$month = $current_date->format('m');
+			$day = $current_date->format('d');
+			$week = $current_date->format('w');
+			$date = $current_date->format('Y-m-d');
+			
+			// 고정 항목
+			foreach($fixExpRecords as $fer){
+				$record = null;
+				if($fer->type == 'INC'){
+		            $type_name = '고정 수입';
+		        }else{
+		            $type_name = '고정 지출';
+		        }
+            
+            	$value_disp = number_format($fer->value);
+            
+				switch ($fer->cycle_type){
+					case 'Y':
+						$cycle_day = preg_split('/[-]/', $fer->cycle_day);
+                    	if($month == $cycle_day[0] && $day == $cycle_day[1]){
+                    		$record = $this->makeRecord($fer->id, $current_date->format("m. d"), $current_date->format("Y-m-d"), $type_name, $fer->context.' ('.$year.'년)', $value_disp, 0);
+                    	}
+						break;
+					case 'M':
+						if($day == $fer->cycle_day){
+							$record = $this->makeRecord($fer->id, $current_date->format("m. d"), $current_date->format("Y-m-d"), $type_name, $fer->context .' ('.$month.'월)', $value_disp, 0);
+						}
+						break;
+					case 'W':
+						break;
+					case 'D':
+						break;
+
+				}
+				
+				if($record != null){
+					$result['data'][count($result['data'])] = $record;	
+				}
+			}
+
+			// 일반 항목
+			
+
+
+			$current_date->modify("+1 day");
+		}
+		return $result;
+	}
+
+	private function makeRecord($id, $date_disp, $target_at, $type_name, $context, $value_disp, $sum_disp){
+		$array_record = array(
+	        'id'            => $id,
+	        'date_disp'     => $date_disp, 
+	        'target_at'     => $target_at, 
+	        'type_name'     => $type_name, 
+	        'context'       => $context, 
+	        'value_disp'    => $value_disp, 
+	        'sum_disp'      => $sum_disp
+        );
+        return $array_record;
+	}
 
 	/**
 	 * Show the form for creating a new resource.
@@ -132,8 +216,7 @@ class RecordController extends \BaseController {
 	public function show($id)
 	{
 		
-        $record = DB::table('records')
-            ->select(DB::raw("DATE_FORMAT(target_at, '%m. %d') as date_disp"), "target_at", "type", "context", "value", "id")
+        $record = Record::select(DB::raw("DATE_FORMAT(target_at, '%Y-%m-%d') as target_at"), "type", "context", "value", "id")
             ->where('id', '=', $id)
             ->first();
         //dd($record);
@@ -174,7 +257,29 @@ class RecordController extends \BaseController {
 	 */
 	public function update($id)
 	{
-		//
+		$target_at 		= Input::get('target_at');
+		$type			= Input::get('type');
+		$context 		= Input::get('context');
+		$value 			= Input::get('value');
+		
+		if(preg_match("/^[0-9,]+$/", $value)) 
+			$value = str_replace(',', '', $value);
+		
+		
+		$record = Record::findOrFail($id);
+		if( $record->user_id != Auth::user()->id){
+		    return Response::make('Forbidden', 403);
+		}
+
+		$record->target_at 	= $target_at;
+		$record->type	 	= $type;
+		$record->context 	= $context;
+		$record->value 		= $value;
+
+		$result = $record->save();
+		
+		return Response::json(array('result' => $result));
+		
 	}
 
 

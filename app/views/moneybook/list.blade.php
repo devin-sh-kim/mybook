@@ -14,6 +14,11 @@
 			<div class="col-lg-12">
 				<div class="showback">
 					<h4>{{ $start . " ~ " . $end }}</h4>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{{ url('/moneybook?y=' . $prev_year . '&m=' . $prev_month) }}" class="btn btn-default"><i class="fa fa-angle-left"></i></a>
+                        <a href="{{ url('/moneybook') }}" class="btn btn-default"><i class="fa fa-circle-o"></i></a>
+                        <a href="{{ url('/moneybook?y=' . $next_year . '&m=' . $next_month) }}" class="btn btn-default"><i class="fa fa-angle-right"></i></a>
+                    </div>
 					<table id="records" class="row-border" cellspacing="0" width="100%">
 						<thead>
 							<tr>
@@ -62,7 +67,6 @@
                             {{ Form::label('type', '수입/지출', array('class' => 'col-sm-2 control-label')); }}
                             <div class="col-sm-8">
                                 <div class="row">
-                     	
                                     <div class="col-sm-12">
                                         <div class="btn-group btn-group-justified" data-toggle="buttons">
                                             <label class="btn btn-default">
@@ -95,12 +99,6 @@
 				
 				</div>
 			</div>
-	<!--
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-primary">Save</button>
-			</div>
-	-->
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
@@ -145,7 +143,7 @@
 {{ HTML::script('js/common-scripts.js'); }}
 {{ HTML::script('//cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js'); }}
 <!--script for this page-->
-
+{{ HTML::script('js/bootstrap-js/button.js'); }}
 <script>
 
 var table;
@@ -185,6 +183,16 @@ function getFormattedDate(date) {
 
 function writeRecordModel(){
     
+    $('#recordForm').attr('method', 'POST');
+    $('#recordForm').attr('action', '{{ url("record"); }}');
+    
+    $('#recordForm')[0].reset();
+
+    $("#record_type_inc").parent().removeClass("active");
+    $("#record_type_out").parent().removeClass("active");
+    
+    //$("input:radio[name='type']").val("INC");
+    //$("#record_type_inc").parent().addClass("active");
     
     $("#target_at").val(getFormattedDate(today()));
     
@@ -192,17 +200,40 @@ function writeRecordModel(){
     
 }
 
+
 function editRecordModal(id){
 	
-	//console.log("edit : " + id);
+	$('#recordForm').attr('method', 'PUT');
+    $('#recordForm').attr('action', '{{ url("record"); }}' + "/" + id);
+    
 	
-	
-	
-	$('#target_at').val("2014-01-01");
-	
-	//console.log($('#target_at').val());
-	
-	$('#writeModal').modal('show');
+	$.ajax("{{ url('/record') }}/" + id)
+	.done(function(data){
+	    console.log(data);
+	    $('#target_at').val(data.target_at);
+	    
+	    if(data.type === 'OUT'){
+	        $("input:radio[name='type']").val("OUT");
+	        $("#record_type_out").parent().addClass("active");
+	        $("#record_type_inc").parent().removeClass("active");
+	    } else if(data.type === 'INC'){
+	        $("input:radio[name='type']").val("INC");
+	        $("#record_type_inc").parent().addClass("active");
+	        $("#record_type_out").parent().removeClass("active");
+	    }
+	    
+	    console.log($("input:radio[name='type']").val());
+	        
+	    $('#context').val(data.context);
+	    $('#value').val(data.value_disp);
+	    
+	    
+	    // $('#btnDelete').one('click', function(){
+	    //     deleteRecord(id);
+	    // });
+	    //$('#confirmDeleteModal').modal('show');
+	    $('#writeModal').modal('show');
+	});
 
 }
 
@@ -232,7 +263,7 @@ function deleteRecord(id){
 
 function format ( d ) {
     // `d` is the original data object for the row
-    html = '<table width="100%" cellspacing="0" style="padding:0;">'+
+    var html = '<table width="100%" cellspacing="0" style="padding:0;">'+
     		'<tr>'+
     			'<td style="padding:0; margin:0;">'+
     				'<div class="btn-group">'+
@@ -308,6 +339,14 @@ $(function(){
     $('form[data-async]').on('submit', function(event) {
         var $form = $(this);
         var $target = $($form.attr('data-target'));
+ 
+         if($("#record_type_inc").parent().hasClass("active")){
+             $("#record_type_inc").button('toggle');
+         }else {
+             $("#record_type_out").button('toggle');
+         }
+ 
+         console.log($form.serialize());
  
         $.ajax({
             type: $form.attr('method'),

@@ -19,9 +19,28 @@ class MoneyBookController extends \BaseController {
 		$start_day = UserSetting::getSetting(Auth::user()->id, __USER_SETTING_ID_MONEYBOOK_START_DAY__);
 		//dd($start_day);
 
-		$range = $this->makeRange($start_day);
+		$input = Input::all();
+		
+		$now = new DateTime();
+		
+		if(isset($input['y'])){
+			$year = $input['y'];
+		}else{
+			$year = $now->format('Y');
+		}
+		
+		if(isset($input['m'])){
+			$month = $input['m'];
+		}else{
+			$month = $now->format('m');
+		}
+		
+		//dd($month);
+
+		$range = $this->makeRange($year, $month, $start_day);
 		
 		//dd($range);
+		
 		
 		View::share('action', 'moneybook');
         $this->layout->head = View::make('layouts.head');
@@ -29,7 +48,7 @@ class MoneyBookController extends \BaseController {
         $this->layout->sidebar = View::make('layouts.sidebar');
         $this->layout->footer = View::make('layouts.footer');
         //$this->layout->script = View::make('stamp.list_script');
-        $this->layout->content = View::make('moneybook.list', array('start' => $range['start'], 'end' => $range['end']));
+        $this->layout->content = View::make('moneybook.list', $range);
 		
 	}
 
@@ -133,14 +152,14 @@ class MoneyBookController extends \BaseController {
 		//
 	}
 
-    private function makeRange($start_day){
+    private function makeRange($year, $month, $day){
         $date = new DateTime();
 
         $today = $date->format('d');
 		
-		$date->setDate($date->format('Y'), $date->format('m'), $start_day);
+		$date->setDate($year, $month , $day);
 		
-		if($today < $start_day){
+		if($today < $day){
 		    $date->modify("-1 month");
 		}
 			
@@ -153,7 +172,26 @@ class MoneyBookController extends \BaseController {
 		$end = $date->format('Y-m-d');
 		//dd($start . " ~ " . $end);
 		
-        return array('start' => $start, 'end' => $end);
+		$prev = new DateTime();
+		$prev->setDate($year, $month , $day);
+		$prev->modify("-1 month");
+		$prev_year = $prev->format("Y");
+		$prev_month = $prev->format("m");
+		
+		$next = new DateTime();
+		$next->setDate($year, $month , $day);
+		$next->modify("+1 month");
+		$next_year = $next->format("Y");
+		$next_month = $next->format("m");
+		
+		
+        return array(
+        	'start' => $start, 
+        	'end' => $end,
+        	'prev_year' => $prev_year,
+        	'prev_month' => $prev_month,
+        	'next_year' => $next_year,
+        	'next_month' => $next_month,);
     }
 
 }

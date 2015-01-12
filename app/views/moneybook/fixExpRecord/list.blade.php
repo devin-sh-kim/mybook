@@ -78,12 +78,14 @@
 											<label class="btn btn-default">
 												<input type="radio" name="cycle_type" id="cycle_type_month" value="M">매월
 											</label>
-											<label class="btn btn-default">
+											
+											<label class="btn btn-default disabled">
 												<input type="radio" name="cycle_type" id="cycle_type_week" value="W">매주
 											</label>
-											<label class="btn btn-default">
+											<label class="btn btn-default disabled">
 												<input type="radio" name="cycle_type" id="cycle_type_day" value="D">매일
 											</label>
+											
 										</div>
 									</div>
 								</div>
