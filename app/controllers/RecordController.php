@@ -38,11 +38,12 @@ class RecordController extends \BaseController {
 
         //금월
         $sum = $prevBalance;
-        $records = Record::select(DB::raw("DATE_FORMAT(target_at, '%m. %d') as date_disp"), "target_at", "type", "context", "value", "id")
+        $records = Record::select(DB::raw("DATE_FORMAT(target_at, '%m. %d') as date_disp"), "target_at", "type", "context", "value", "id", "fix_exp_id")
             ->where('user_id', '=', $user_id)
             ->whereBetween('target_at', array($start, $end))
             ->orderBy('target_at', 'asc')
             ->orderBy('type', 'asc')
+            ->orderBy('fix_exp_id', 'desc')
             ->orderBy('created_at', 'asc')
             ->get();
 
@@ -57,6 +58,10 @@ class RecordController extends \BaseController {
                 $sum -= $record->value;
             }
             
+            if($record->fix_exp_id != '0'){
+            	$record->type_name = "고정 ".$record->type_name;
+            }
+            
             $record->value_disp = number_format($record->value);
             
             $record->sum_disp = number_format($sum);
@@ -65,7 +70,8 @@ class RecordController extends \BaseController {
 			        'id'            => $record->id,
 			        'date_disp'          => $record->date_disp, 
 			        'target_at'     => $record->target_at, 
-			        'type_name'     => $record->type_name, 
+			        'type_name'     => $record->type_name,
+			        'type'     		=> $record->type, 
 			        'context'       => $record->context, 
 			        'value_disp'    => $record->value_disp, 
 			        'sum_disp'      => $record->sum_disp
@@ -79,14 +85,11 @@ class RecordController extends \BaseController {
         // $array_data['data'][count($records)] = $total_record;
         
         // 고정 지출 포함
-        $fixExpRecords = FixExpRecord::where('user_id', '=', Auth::id())->get();
+        //$fixExpRecords = FixExpRecord::where('user_id', '=', Auth::id())->get();
+        //$result = $this->makeResult($start, $end, $records, $fixExpRecords, $prevBalance);
+        //return Response::json($result);
         
-        $result = $this->makeResult($start, $end, $records, $fixExpRecords, $prevBalance);
-        
-        
-        return Response::json($result);
-        
-        //return Response::json($array_data);
+        return Response::json($array_data);
         
 	}
 

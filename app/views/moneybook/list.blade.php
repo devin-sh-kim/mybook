@@ -306,7 +306,7 @@ $(function(){
         ],
   		"fnCreatedRow": function( nRow, aData, iDataIndex ) {
   			//console.log(aData);
-			if ( aData['type_name'] == "지출" )
+			if ( aData['type'] == "OUT" )
 			{
 				$('td', nRow).css('color', '#9e0000');
 			}else{

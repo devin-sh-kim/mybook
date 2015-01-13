@@ -26,7 +26,7 @@ return array(
 	|
 	*/
 
-	'url' => 'http://ujacha.net/ide/workspace/mybook',
+	'url' => getenv('APP_URL'),
 
 	/*
 	|--------------------------------------------------------------------------

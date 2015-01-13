@@ -12,3 +12,4 @@
 */
 
 Artisan::add(new RandomString);
+Artisan::add(new FixExpApply);
