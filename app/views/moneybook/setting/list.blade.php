@@ -13,7 +13,7 @@
 			<div class="col-lg-12">
 				<div class="showback">
 					<h4>Money Book 설정</h4>
-
+                    <hr>
 					{{ Form::open(array('url' => url('/moneybook-setting'), 'class' => 'form-horizontal style-form')) }}
                         
                         <div class="form-group">

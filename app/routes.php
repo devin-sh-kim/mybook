@@ -104,7 +104,8 @@ Route::group(array('before' => 'auth'), function()
     Route::resource('fixExpRecord', 'FixExpRecordController');
     Route::get('fixExpRecord.json', 'FixExpRecordController@listJson');
     Route::resource('moneybook-setting', 'MoneyBookSettingController');
-
+    Route::resource('moneybookCategory',        'MoneybookCategoryController');
+    
     // Boards
     Route::resource('board',        'BoardController');
     

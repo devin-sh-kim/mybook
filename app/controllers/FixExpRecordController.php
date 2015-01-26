@@ -85,15 +85,28 @@ class FixExpRecordController extends \BaseController {
             }
              
             $record->cycle_disp = $cycle_disp;
-            
             $record->value_disp = number_format($record->value);
+            
+            $start_at = date_create_from_format("Y-m-d H:i:s", $record->start_at);
+            $end_at = date_create_from_format("Y-m-d H:i:s", $record->end_at);
+            
+            $start_at_format = $start_at->format("Y-m-d") . " 부터 ";
+            
+            if($end_at->format("Y-m-d") == "9999-12-31"){
+            	$end_at_format = "종료일 없음";
+            }else{
+            	$end_at_format = $end_at->format("Y-m-d") . " 까지";
+            }
+            
+            $start_to_end = $start_at_format . $end_at_format;
             
 			$array_record = array(
 			        'id'            => $record->id,
 			        'cycle_disp'    => $record->cycle_disp, 
 			        'type_name'     => $record->type_name, 
 			        'context'       => $record->context, 
-			        'value_disp'    => $record->value_disp, 
+			        'value_disp'    => $record->value_disp,
+			        'start_to_end'	=> $start_to_end,
             );
 			
 		    $array_data['data'][$i] = $array_record;
@@ -114,7 +127,13 @@ class FixExpRecordController extends \BaseController {
 	 */
 	public function create()
 	{
-		//
+		View::share('action', 'moneybook');
+        $this->layout->head = View::make('layouts.head');
+        $this->layout->header = View::make('layouts.header');
+        $this->layout->sidebar = View::make('layouts.sidebar');
+        $this->layout->footer = View::make('layouts.footer');
+        //$this->layout->script = View::make('stamp.list_script');
+        $this->layout->content = View::make('moneybook.fixExpRecord.create');
 	}
 
 
@@ -157,7 +176,20 @@ class FixExpRecordController extends \BaseController {
 		
 		$record->value = $value;
 		
+		$record->start_at = $input['start_at'];
+		
+		if(isset($input['end_at'])){
+			$end_at = $input['end_at'];
+		}else{
+			$end_at = "9999-12-31";
+		}
+		$record->end_at = $end_at;
+		
+		//dd($record);
+		
 		$record->save();
+		
+		return Redirect::to('fixExpRecord');
 	}
 
 
@@ -169,7 +201,84 @@ class FixExpRecordController extends \BaseController {
 	 */
 	public function show($id)
 	{
-		//
+		$record = FixExpRecord::where('user_id', '=', Auth::id())->where('id', '=', $id)->first();
+
+        if($record->type == 'INC'){
+            $record->type_name = '수입';
+        }else{
+            $record->type_name = '지출';
+        }
+
+        switch ($record->cycle_type){
+            case 'Y':
+                $cycle_day = preg_split('/[-]/', $record->cycle_day);
+                $cycle_disp = "매년 " . $cycle_day[0] . "월 " . $cycle_day[1] . "일";
+                break;
+            
+            case 'M':
+                $cycle_disp = "매월 " . $record->cycle_day . "일";
+                break;
+            
+            case 'W':
+                switch ( $record->cycle_day ){
+                    case '0':
+                        $cycle_day = "일요일";
+                        break;
+                    case '1':
+                        $cycle_day = "월요일";
+                        break;
+                    case '2':
+                        $cycle_day = "화요일";
+                        break;
+                    case '3':
+                        $cycle_day = "수요일";
+                        break;
+                    case '4':
+                        $cycle_day = "목요일";
+                        break;
+                    case '5':
+                        $cycle_day = "금요일";
+                        break;
+                    case '6':
+                        $cycle_day = "토요일";
+                        break;
+                }
+                
+                $cycle_disp = "매주 " . $cycle_day;
+                break;
+            
+            case 'D':
+                $cycle_disp = "매일";
+                break;
+                
+        }
+             
+        $record->cycle_disp = $cycle_disp;
+        $record->value_disp = number_format($record->value);
+        
+        $start_at = date_create_from_format("Y-m-d H:i:s", $record->start_at);
+        $end_at = date_create_from_format("Y-m-d H:i:s", $record->end_at);
+        
+        $start_at_format = $start_at->format("Y-m-d") . " 부터 ";
+            
+        if($end_at->format("Y-m-d") == "9999-12-31"){
+        	$end_at_format = "종료일 없음";
+        }else{
+        	$end_at_format = $end_at->format("Y-m-d") . " 까지";
+        }
+            
+        $start_to_end = $start_at_format . $end_at_format;
+            
+		$array_record = array(
+		        'id'            => $record->id,
+		        'cycle_disp'    => $record->cycle_disp, 
+		        'type_name'     => $record->type_name, 
+		        'context'       => $record->context, 
+		        'value_disp'    => $record->value_disp,
+		        'start_to_end'	=> $start_to_end,
+        );
+
+        return Response::json($array_record);
 	}
 
 
@@ -193,7 +302,21 @@ class FixExpRecordController extends \BaseController {
 	 */
 	public function update($id)
 	{
-		//
+	    $result = 0;
+	    $terminate = Input::get('terminate');
+	    
+	    //dd($terminate);
+		
+		if($terminate){
+		    $fixExpRecord = FixExpRecord::where('id', '=', $id)->where('user_id', '=', Auth::id())->first();    
+		    $fixExpRecord->end_at = new DateTime();
+		    $result = $fixExpRecord->save();
+		}
+		
+		//dd($result);
+		
+		return Response::json($result);
+		
 	}
 
 
@@ -205,7 +328,14 @@ class FixExpRecordController extends \BaseController {
 	 */
 	public function destroy($id)
 	{
-		//
+	    $result = 0;
+	    
+        $fixExpRecord = FixExpRecord::where('id', '=', $id)->where('user_id', '=', Auth::id())->first();    
+	    $fixExpRecord->delete();
+		
+		
+		
+		return Response::json($result);
 	}
 
 

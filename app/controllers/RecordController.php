@@ -32,21 +32,33 @@ class RecordController extends \BaseController {
 			        'context'       => '지난달 남은 돈', 
 			        'value_disp'    => number_format($prevBalance),
 			        'sum_disp'      => number_format($prevBalance),
+			        'category_name' => '-',
+			        'category_icon' => '-',
         );
 		$array_data['data'][0] = $array_record;
 
 
         //금월
         $sum = $prevBalance;
-        $records = Record::select(DB::raw("DATE_FORMAT(target_at, '%m. %d') as date_disp"), "target_at", "type", "context", "value", "id", "fix_exp_id")
-            ->where('user_id', '=', $user_id)
-            ->whereBetween('target_at', array($start, $end))
-            ->orderBy('target_at', 'asc')
-            ->orderBy('type', 'asc')
-            ->orderBy('fix_exp_id', 'desc')
-            ->orderBy('created_at', 'asc')
-            ->get();
-
+        $records = Record::join('moneybook_categories', 'records.category_code', '=', 'moneybook_categories.code')
+            ->where('records.user_id', '=', $user_id)
+            ->whereBetween('records.target_at', array($start, $end))
+            ->orderBy('records.target_at', 'asc')
+            ->orderBy('records.type', 'asc')
+            ->orderBy('records.fix_exp_id', 'desc')
+            ->orderBy('records.created_at', 'asc')
+            ->select(
+            	DB::raw("DATE_FORMAT(records.target_at, '%m. %d') as date_disp"), 
+            	"records.target_at", 
+            	"records.type", 
+            	"records.context", 
+            	"records.value", 
+            	"records.id", 
+            	"records.fix_exp_id", 
+            	"moneybook_categories.disp_name as category_name",
+            	"moneybook_categories.icon as category_icon"
+            )->get();
+		//dd($records);
         foreach ($records as $record) {
             //var_dump($record->context);
             
@@ -68,13 +80,15 @@ class RecordController extends \BaseController {
             
 			$array_record = array(
 			        'id'            => $record->id,
-			        'date_disp'          => $record->date_disp, 
+			        'date_disp'     => $record->date_disp, 
 			        'target_at'     => $record->target_at, 
 			        'type_name'     => $record->type_name,
 			        'type'     		=> $record->type, 
 			        'context'       => $record->context, 
 			        'value_disp'    => $record->value_disp, 
-			        'sum_disp'      => $record->sum_disp
+			        'sum_disp'      => $record->sum_disp,
+			        'category_name' => "<i class='" .$record->category_icon . "'></i> " . $record->category_name,
+			        'category_icon' => $record->category_icon,
             );
 			
 		    $array_data['data'][count($array_data['data'])] = $array_record;
@@ -192,7 +206,11 @@ class RecordController extends \BaseController {
 		$type 			= Input::get('type');
 		$context 		= Input::get('context');
 		$value 			= Input::get('value');
-	
+		$category_code	= Input::get('category_code');
+		//dd($category_code);
+		if(!$category_code){
+			$category_code = '99';
+		}
 		
 		if(preg_match("/^[0-9,]+$/", $value)) 
 			$value = str_replace(',', '', $value);
@@ -204,6 +222,7 @@ class RecordController extends \BaseController {
 		$record->type 		= $type;
 		$record->context 	= $context;
 		$record->value 		= $value;
+		$record->category_code = $category_code;
 		
 		$record->save();
 		

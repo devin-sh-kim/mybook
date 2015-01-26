@@ -20,6 +20,9 @@ class CreateRecordsTable extends Migration {
                 $table->integer('value');               // 금액
                 $table->dateTime('target_at');          // 대상 일
                 $table->text('context');                // 내용
+       			$table->integer('fix_exp_id')->default('0');
+				$table->string('category_code', 16)->defualt('00');
+				
                 $table->timestamps();
                 $table->softDeletes();
                 

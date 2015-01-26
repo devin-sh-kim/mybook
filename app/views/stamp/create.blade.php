@@ -90,14 +90,12 @@
                                     </span>
                                     <input type="date" class="form-control" name="end_date" id="end_date" disabled="disabled">
                                 </div>
-		                    </div>
                             </div>
-                                    <div class="col-sm-8">
-                            <div class="col-sm-8">
-                                
-                            
                         </div>
-                    </div>
+                        <div class="col-sm-8">
+                            <div class="col-sm-8">
+                            </div>
+                        </div>
 
                         <button type="submit" class="btn btn-primary btn-lg btn-block">Create Stamp Card</button>
                     {{ Form::close() }}
@@ -130,6 +128,7 @@
 
 <script>
 
+
 $(function(){
 	
 	$( '#weekly' ).hide();
@@ -143,6 +142,7 @@ $(function(){
 	    }
 	});
 	
+
 	$( '#end_date_able' ).change(function (){
 		if( $( '#end_date_able' ).prop( "checked" ) ){
 			$( '#end_date' ).prop("disabled", "");
@@ -150,7 +150,7 @@ $(function(){
 			$( '#end_date' ).prop("disabled", "disabled");
 		}
 	});
-	
+		
 });
 
 

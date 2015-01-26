@@ -1,5 +1,24 @@
 @section('style')
 <link rel="stylesheet" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css">
+
+<style type="text/css">
+
+table.dataTable .record {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+table.dataTable .record.pd{
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+</style>
+
 @stop
 
 @section('content')
@@ -13,17 +32,24 @@
 		<div class="row mt">
 			<div class="col-lg-12">
 				<div class="showback">
-					<h4>{{ $start . " ~ " . $end }}</h4>
-                    <div class="btn-group btn-group-sm">
-                        <a href="{{ url('/moneybook?y=' . $prev_year . '&m=' . $prev_month) }}" class="btn btn-default"><i class="fa fa-angle-left"></i></a>
-                        <a href="{{ url('/moneybook') }}" class="btn btn-default"><i class="fa fa-circle-o"></i></a>
-                        <a href="{{ url('/moneybook?y=' . $next_year . '&m=' . $next_month) }}" class="btn btn-default"><i class="fa fa-angle-right"></i></a>
+				    <div class="row">
+    				    <div class="col-xs-6">
+    					    <h4>{{ $start . " ~ " . $end }}</h4>
+    					</div>
+    					<div class="col-xs-6">
+                            <div class="btn-group btn-group-sm pull-right">
+                                <a href="{{ url('/moneybook?y=' . $prev_year . '&m=' . $prev_month) }}" class="btn btn-default"><i class="fa fa-angle-left"></i></a>
+                                <a href="{{ url('/moneybook') }}" class="btn btn-default"><i class="fa fa-circle-o"></i></a>
+                                <a href="{{ url('/moneybook?y=' . $next_year . '&m=' . $next_month) }}" class="btn btn-default"><i class="fa fa-angle-right"></i></a>
+                            </div>
+                        </div>
                     </div>
 					<table id="records" class="row-border" cellspacing="0" width="100%">
 						<thead>
 							<tr>
 								<th>Date</th>
 								<th>Type</th>
+								<th>Category</th>
 								<th>Context</th>
 								<th>Value</th>
 								<!--<th>Balance</th>-->
@@ -148,8 +174,6 @@
 
 var table;
 
-
-
 function validate(evt) {
   var theEvent = evt || window.event;
   var key = theEvent.keyCode || theEvent.which;
@@ -271,8 +295,8 @@ function format ( d ) {
     						'Action <span class="caret"></span>'+
   						'</button>'+
   						'<ul class="dropdown-menu" role="menu">'+
-    						'<li><a href="javascript:editRecordModal('+ d.id +')">Edit</a></li>'+
-    						'<li><a href="javascript:deleteRecordModal('+ d.id +')">Delete</a></li>'+
+    						'<li><a href="javascript:editRecordModal('+ d.id +')">수정</a></li>'+
+    						'<li><a href="javascript:deleteRecordModal('+ d.id +')">삭제</a></li>'+
     					'</ul>'+
 					'</div>'+
     			'</td>'+
@@ -293,16 +317,18 @@ $(function(){
         "info": false,
         "searching": false,
         "columnDefs": [
-    		{ "targets": 0, "width": "60"},
-    		{ "targets": 1, "width": "40"},
-    		{ "targets": 2, "width": "auto"},
-    		{ "targets": 3, "width": "100"}
+    		{ "targets": 0, "width": "12%"},
+    		{ "targets": 1, "width": "12%"},
+    		{ "targets": 2, "width": "12%"},
+    		{ "targets": 3, "width": "auto"},
+    		{ "targets": 4, "width": "20%"}
   		],
   		"columns": [
-            { "data": "date_disp"			, "className": "dt-head-center dt-body-center details-control" },
-            { "data": "type_name"		, "className": "dt-center" },
-            { "data": "context"			, "className": "dt-head-center dt-body-left" },
-            { "data": "value_disp"		, "className": "dt-head-center dt-body-right value" }
+            { "data": "date_disp"		, "className": "dt-head-center dt-body-center details-control record small" },
+            { "data": "type_name"		, "className": "dt-center record small" },
+            { "data": "category_name"	, "className": "dt-center record small" },
+            { "data": "context"			, "className": "dt-head-center dt-body-left record pd" },
+            { "data": "value_disp"		, "className": "dt-head-center dt-body-right record small" }
         ],
   		"fnCreatedRow": function( nRow, aData, iDataIndex ) {
   			//console.log(aData);
@@ -317,7 +343,7 @@ $(function(){
     
     
     // Add event listener for opening and closing details
-    $('#records tbody').on('click', 'td.value', function () {
+    $('#records tbody').on('click', 'td.record', function () {
         var tr = $(this).closest('tr');
         // console.log(tr);
         // console.log(table);
@@ -334,7 +360,7 @@ $(function(){
             row.child( format(row.data()) ).show();
             tr.addClass('shown');
         }
-        });
+    });
     
     $('form[data-async]').on('submit', function(event) {
         var $form = $(this);

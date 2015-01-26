@@ -21,7 +21,10 @@ class CreateFixExpRecordsTable extends Migration {
 			$table->string('cycle_day', 16);		// {Y:MM-DD, M:DD, W:WDAY, D:1}
 			$table->integer('value');               // 금액
             $table->text('context');                // 내용
-            
+
+			$table->dateTime('start_at');
+			$table->dateTime('end_at')->default('9999-12-31');
+
 			$table->timestamps();
 			$table->softDeletes();
 		});
