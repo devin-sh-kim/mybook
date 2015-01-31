@@ -15,9 +15,7 @@ class MoneyBookController extends \BaseController {
 	 */
 	public function index()
 	{
-		//
 		$start_day = UserSetting::getSetting(Auth::user()->id, __USER_SETTING_ID_MONEYBOOK_START_DAY__);
-		//dd($start_day);
 
 		$input = Input::all();
 		
@@ -35,20 +33,16 @@ class MoneyBookController extends \BaseController {
 			$month = $now->format('m');
 		}
 		
-		//dd($month);
-
 		$range = $this->makeRange($year, $month, $start_day);
-		
-		//dd($range);
-		
+
+		$categories = MoneybookCategory::get();
 		
 		View::share('action', 'moneybook');
         $this->layout->head = View::make('layouts.head');
         $this->layout->header = View::make('layouts.header');
         $this->layout->sidebar = View::make('layouts.sidebar');
         $this->layout->footer = View::make('layouts.footer');
-        //$this->layout->script = View::make('stamp.list_script');
-        $this->layout->content = View::make('moneybook.list', $range);
+        $this->layout->content = View::make('moneybook.list', array("range" => $range, "categories" => $categories));
 		
 	}
 

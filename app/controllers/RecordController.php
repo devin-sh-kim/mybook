@@ -207,6 +207,7 @@ class RecordController extends \BaseController {
 		$context 		= Input::get('context');
 		$value 			= Input::get('value');
 		$category_code	= Input::get('category_code');
+		
 		//dd($category_code);
 		if(!$category_code){
 			$category_code = '99';
@@ -238,7 +239,7 @@ class RecordController extends \BaseController {
 	public function show($id)
 	{
 		
-        $record = Record::select(DB::raw("DATE_FORMAT(target_at, '%Y-%m-%d') as target_at"), "type", "context", "value", "id")
+        $record = Record::select(DB::raw("DATE_FORMAT(target_at, '%Y-%m-%d') as target_at"), "type", "context", "value", "id", "category_code")
             ->where('id', '=', $id)
             ->first();
         //dd($record);
@@ -283,6 +284,11 @@ class RecordController extends \BaseController {
 		$type			= Input::get('type');
 		$context 		= Input::get('context');
 		$value 			= Input::get('value');
+		$category_code	= Input::get('category_code');
+		
+		if(!$category_code){
+			$category_code = '99';
+		}
 		
 		if(preg_match("/^[0-9,]+$/", $value)) 
 			$value = str_replace(',', '', $value);
@@ -297,6 +303,7 @@ class RecordController extends \BaseController {
 		$record->type	 	= $type;
 		$record->context 	= $context;
 		$record->value 		= $value;
+		$record->category_code = $category_code;
 
 		$result = $record->save();
 		

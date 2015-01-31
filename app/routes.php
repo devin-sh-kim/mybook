@@ -69,11 +69,6 @@ Route::post('api/createAccount', 'AccountController@createAccount');
 Route::get('api/users', 'UserController@getUsers');
 Route::get('api/user/{id}', 'UserController@getUser');
 
-// Route::get('setupStamp', 'TableSetupController@setupStamp');
-// Route::get('setupBoard', 'TableSetupController@setupBoard');
-// Route::get('setupRecord', 'TableSetupController@setupRecord');
-// Route::get('setupSetting', 'TableSetupController@setupSetting');
-
 /*
 /-----------------------------------
 / apply auth filter group

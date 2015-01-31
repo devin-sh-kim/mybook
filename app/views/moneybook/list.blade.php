@@ -1,5 +1,6 @@
 @section('style')
 <link rel="stylesheet" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css">
+{{ HTML::style('css/bootstrap-select.css'); }}
 
 <style type="text/css">
 
@@ -10,7 +11,7 @@ table.dataTable .record {
     padding-right: 0px;
 }
 
-table.dataTable .record.pd{
+table.dataTable .record.pd {
     padding-top: 6px;
     padding-bottom: 6px;
     padding-left: 10px;
@@ -34,13 +35,13 @@ table.dataTable .record.pd{
 				<div class="showback">
 				    <div class="row">
     				    <div class="col-xs-6">
-    					    <h4>{{ $start . " ~ " . $end }}</h4>
+    					    <h4>{{ $range['start'] . " ~ " . $range['end'] }}</h4>
     					</div>
     					<div class="col-xs-6">
                             <div class="btn-group btn-group-sm pull-right">
-                                <a href="{{ url('/moneybook?y=' . $prev_year . '&m=' . $prev_month) }}" class="btn btn-default"><i class="fa fa-angle-left"></i></a>
+                                <a href="{{ url('/moneybook?y=' . $range['prev_year'] . '&m=' . $range['prev_month']) }}" class="btn btn-default"><i class="fa fa-angle-left"></i></a>
                                 <a href="{{ url('/moneybook') }}" class="btn btn-default"><i class="fa fa-circle-o"></i></a>
-                                <a href="{{ url('/moneybook?y=' . $next_year . '&m=' . $next_month) }}" class="btn btn-default"><i class="fa fa-angle-right"></i></a>
+                                <a href="{{ url('/moneybook?y=' . $range['next_year'] . '&m=' . $range['next_month']) }}" class="btn btn-default"><i class="fa fa-angle-right"></i></a>
                             </div>
                         </div>
                     </div>
@@ -118,8 +119,38 @@ table.dataTable .record.pd{
                             {{ Form::label('value', '금액', array('class' => 'col-sm-2 control-label')); }}
                             <div class="col-sm-8">
                                 {{ Form::text('value', '', array('class' => 'form-control number', 'min' => '1', 'placeholder' => '금액을 입력하세요', 'id'=>'value', 'onkeypress'=>'validate(event)' , 'style'=>'text-align:right;')); }}
-                	            </div>
-                    </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ Form::label('value', '구분', array('class' => 'col-sm-2 control-label')); }}
+                            <div class="col-sm-8">
+                                <select class="selectpicker" name="category_code" id="category_code">
+                                    <?php $grpOpen = 0; ?>
+                                    @foreach ($categories as $category)
+                                        @if (  $category->code === "99" || (strpos($category->parent_code, "01") === 0) )
+                                            @if ( $category->level === "1" )
+                                                @if( $grpOpen != 0 )
+                                                </optgroup>
+                                                @endif
+                                                <optgroup label="{{ $category->disp_name }}">
+                                                <?php $grpOpen = 1;?>
+                                            @elseif  ( $category->level === "2" )
+                                                <option value="{{ $category->code }}">{{ $category->disp_name }}</option>
+                                            @else
+                                                <option value="{{ $category->code }}">{{ $category->disp_name }}</option>
+                                            @endif
+                                        @endif
+                                    @endforeach
+                                    @if( $grpOpen != 0 )
+                                        </optgroup>
+                                    @endif
+                                                
+                                </select>
+                            </div>
+                        </div>
+                        
+                        
                         <button type="submit" class="btn btn-primary btn-lg btn-block">확인</button>
                     {{ Form::close() }}				
 				
@@ -170,6 +201,8 @@ table.dataTable .record.pd{
 {{ HTML::script('//cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js'); }}
 <!--script for this page-->
 {{ HTML::script('js/bootstrap-js/button.js'); }}
+{{ HTML::script('js/bootstrap-select/bootstrap-select.js'); }}
+
 <script>
 
 var table;
@@ -215,6 +248,9 @@ function writeRecordModel(){
     $("#record_type_inc").parent().removeClass("active");
     $("#record_type_out").parent().removeClass("active");
     
+    $("#category_code").val("99");
+    $("#category_code").selectpicker('render');
+    
     //$("input:radio[name='type']").val("INC");
     //$("#record_type_inc").parent().addClass("active");
     
@@ -237,11 +273,11 @@ function editRecordModal(id){
 	    $('#target_at').val(data.target_at);
 	    
 	    if(data.type === 'OUT'){
-	        $("input:radio[name='type']").val("OUT");
+	        //$("input:radio[name='type']").val("OUT");
 	        $("#record_type_out").parent().addClass("active");
 	        $("#record_type_inc").parent().removeClass("active");
 	    } else if(data.type === 'INC'){
-	        $("input:radio[name='type']").val("INC");
+	        //$("input:radio[name='type']").val("INC");
 	        $("#record_type_inc").parent().addClass("active");
 	        $("#record_type_out").parent().removeClass("active");
 	    }
@@ -251,6 +287,9 @@ function editRecordModal(id){
 	    $('#context').val(data.context);
 	    $('#value').val(data.value_disp);
 	    
+	    $("#category_code").val(data.category_code);
+        $("#category_code").selectpicker('render');
+    
 	    
 	    // $('#btnDelete').one('click', function(){
 	    //     deleteRecord(id);
@@ -311,7 +350,7 @@ function format ( d ) {
 $(function(){
 
     table = $('#records').DataTable( {
-        "ajax": '{{ url("/record?start=" . $start . "&end=" . $end); }}',
+        "ajax": '{{ url("/record?start=" . $range["start"] . "&end=" . $range["end"]); }}',
         "ordering": false,
         "paging": false,
         "info": false,
