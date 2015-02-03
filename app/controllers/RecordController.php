@@ -19,27 +19,39 @@ class RecordController extends \BaseController {
         $start = Input::get('start');
         $end = Input::get('end');
 
+		$current_date = date_create_from_format('Y-m-d', $start);
+        
         $array_data = array('data' => array());
 
         //전월 계산
-        $prevBalance = Record::getPrevBalance($user_id, $start);
+        //$prevBalance = Record::getPrevBalance($user_id, $start);
+        
+        //시작금액
+        $startValue = Record::getStartValue($user_id, $start, $end);
+        
         
         $array_record = array(
-			        'id'            => '0',
+			        'id'            => $start,
 			        'date_disp'     => '-', 
-			        'target_at'     => '-', 
-			        'type_name'     => '수입', 
-			        'context'       => '지난달 남은 돈', 
-			        'value_disp'    => number_format($prevBalance),
-			        'sum_disp'      => number_format($prevBalance),
+			        'target_at'     => '-',
+			        'type'     		=> 'STV', 
+			        'type_name'     => '시작 금액', 
+			        'context'       => $current_date->format('m') . '월 시작 금액', 
+			        'value_disp'    => number_format($startValue),
+			        'sum_disp'      => number_format($startValue),
 			        'category_name' => '-',
 			        'category_icon' => '-',
         );
+        
 		$array_data['data'][0] = $array_record;
 
-
-        //금월
-        $sum = $prevBalance;
+        
+        $card_sum = 0;
+        $inc_sum = $startValue;
+        $out_sum = 0;
+        $balance = $startValue;
+        
+        
         $records = Record::join('moneybook_categories', 'records.category_code', '=', 'moneybook_categories.code')
             ->where('records.user_id', '=', $user_id)
             ->whereBetween('records.target_at', array($start, $end))
@@ -64,19 +76,30 @@ class RecordController extends \BaseController {
             
             if($record->type == 'INC'){
                 $record->type_name = '수입';
-                $sum += $record->value;
-            }else{
-                $record->type_name = '지출';
-                $sum -= $record->value;
+                $balance += $record->value;
+                $inc_sum += $record->value;
+                
+            }else if($record->type == 'OUT'){
+                $record->type_name = '현금 지출';
+                $balance -= $record->value;
+                $out_sum += $record->value;
+                
+            }else if($record->type == 'CRD'){
+                $record->type_name = '카드 지출';
+                $card_sum += $record->value;
+                
             }
             
             if($record->fix_exp_id != '0'){
             	$record->type_name = "고정 ".$record->type_name;
             }
             
-            $record->value_disp = number_format($record->value);
+            $value_disp = number_format($record->value);
             
-            $record->sum_disp = number_format($sum);
+            $inc_sum_disp = number_format($inc_sum);
+            $out_sum_disp = number_format($out_sum);
+            $balance_disp = number_format($balance);
+            $card_sum_disp = number_format($card_sum);
             
 			$array_record = array(
 			        'id'            => $record->id,
@@ -85,8 +108,11 @@ class RecordController extends \BaseController {
 			        'type_name'     => $record->type_name,
 			        'type'     		=> $record->type, 
 			        'context'       => $record->context, 
-			        'value_disp'    => $record->value_disp, 
-			        'sum_disp'      => $record->sum_disp,
+			        'value_disp'    => $value_disp, 
+			        'balance_disp'  => $balance_disp,
+			        'inc_sum_disp'  => $inc_sum_disp,
+			        'out_sum_disp'  => $out_sum_disp,
+			        'card_sum_disp' => $card_sum_disp,
 			        'category_name' => "<i class='" .$record->category_icon . "'></i> " . $record->category_name,
 			        'category_icon' => $record->category_icon,
             );
@@ -111,8 +137,8 @@ class RecordController extends \BaseController {
 		
 		$result = array('data' => array());
 		
-		$current_date = date_create_from_format('Y-m-d', $start);;
-		$end_date = date_create_from_format('Y-m-d', $end);;
+		$current_date = date_create_from_format('Y-m-d', $start);
+		$end_date = date_create_from_format('Y-m-d', $end);
 		
 		if($current_date > $end_date){
 			return null;
@@ -329,6 +355,67 @@ class RecordController extends \BaseController {
 		$result = $record->delete();
 		
 		return Response::json(array('result' => $result));
+	}
+
+
+	public function getStartValue(){
+		
+		$user_id = Auth::id();
+		$target_at = Input::get('target_at');
+		$current_date = date_create_from_format('Y-m-d', $target_at);
+		$current_date->setDate($current_date->format('Y'), $current_date->format('m'), 1);
+		
+		$start = $current_date->format('Y-m-d');
+		$end = $current_date->modify("+1 month")->modify("-1 day")->format('Y-m-d');
+		
+		$value = Record::getStartValue($user_id, $start, $end);
+		$value_disp = number_format($value);
+		
+		return Response::json(array('value' => $value, 'value_disp' => $value_disp)); 
+		
+	}
+
+	public function updateStartValue(){
+		
+		$target_at = Input::get('target_at');
+		$value = Input::get('value');
+		
+		if(preg_match("/^[0-9,]+$/", $value)) 
+			$value = str_replace(',', '', $value);
+		
+		$user_id = Auth::id();
+		
+		$current_date = date_create_from_format('Y-m-d', $target_at);
+		$current_date->setDate($current_date->format('Y'), $current_date->format('m'), 1);
+		//dd($current_date);
+		
+		$start = $current_date->format('Y-m-d');
+		$end = $current_date->modify("+1 month")->modify("-1 day")->format('Y-m-d');
+		
+		//dd($start . ", " . $end);
+		
+		$record = Record::where('type', '=', 'STV')
+				->where('user_id', '=', $user_id)
+				->whereBetween('target_at', array($start, $end))
+				->first();
+		
+		//dd($record);
+		
+		if($record){
+			$record->value = $value;
+			
+		}else{
+			$record = new Record;
+			$record->user_id = $user_id;
+			$record->type = "STV";
+			$record->target_at = $target_at;
+			$record->value = $value;
+		}
+		
+		$result = $record->save();
+		
+		return Response::json(array('result' => $result));
+		
 	}
 
 

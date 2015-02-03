@@ -18,6 +18,9 @@ table.dataTable .record.pd {
     padding-right: 10px;
 }
 
+table#total td.value {
+    text-align: right;
+}
 </style>
 
 @stop
@@ -48,16 +51,41 @@ table.dataTable .record.pd {
 					<table id="records" class="row-border" cellspacing="0" width="100%">
 						<thead>
 							<tr>
-								<th>Date</th>
-								<th>Type</th>
-								<th>Category</th>
-								<th>Context</th>
-								<th>Value</th>
+								<th>날짜</th>
+								<th>구분</th>
+								<th>분류</th>
+								<th>사용내역</th>
+								<th>금액</th>
 								<!--<th>Balance</th>-->
 							</tr>
 						</thead>
 					</table>
-			
+			        
+			        <div class="row mt">
+			            <div class="col-sm-3 col-sm-offset-9">
+    			            <table id="total" class="" cellspacing="0" width="100%">
+    			                <tr>
+        		                    <td>카드 지출</td>
+        		                    <td class="value"><span id="card_sum">0</span></td>
+                                </tr>
+                                <tr>
+        		                    <td>현금 수입</td>
+        		                    <td class="value"><span id="inc_sum">0</span></td>
+                                </tr>
+                                <tr>
+        		                    <td>현금 지출</td>
+        		                    <td class="value"><span id="out_sum">0</span></td>
+                                </tr>
+                                <tr>
+        		                    <td>현금 잔액</td>
+        		                    <td class="value"><span id="balance">0</span></td>
+        		                </tr>
+        		            </table>    
+			            </div>
+    			        
+			        </div>
+			        
+			        
 					<div class="row mt">
 						<div class="col-lg-12">
 							<button type="button" class="btn btn-primary btn-block" id="btnWriteRecord">등록</button>
@@ -100,7 +128,10 @@ table.dataTable .record.pd {
                                                 <input type="radio" name="type" id="record_type_inc" value="INC">수입
                                             </label>
                                             <label class="btn btn-default">
-                                                <input type="radio" name="type" id="record_type_out" value="OUT">지출
+                                                <input type="radio" name="type" id="record_type_out" value="OUT">현금 지출
+                                            </label>
+                                            <label class="btn btn-default">
+                                                <input type="radio" name="type" id="record_type_card" value="CRD">카드 사용
                                             </label>
                                 		</div>
                                 	</div>
@@ -180,6 +211,33 @@ table.dataTable .record.pd {
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<div class="modal fade" id="startValueSettingModel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h4 class="modal-title">시작 금액 설정</h4>
+			</div>
+			<div class="modal-body">
+
+	                    {{ Form::open(array('id' => 'startValueForm', 'url' => 'record/startValue', 'class' => 'form-horizontal style-form', 'data-async')) }}
+                        <input type="hidden" name="target_at" id="start_value_target_at"/>
+                        <div class="form-group">
+                            {{ Form::label('value', '시작 금액', array('class' => 'col-sm-2 control-label')); }}
+                            <div class="col-sm-8">
+                                {{ Form::text('value', '', array('class' => 'form-control number', 'min' => '1', 'placeholder' => '금액을 입력하세요', 'id'=>'startValue', 'onkeypress'=>'validate(event)' , 'style'=>'text-align:right;')); }}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">확인</button>
+                    {{ Form::close() }}	
+				
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
 
 @stop
 @section('script')
@@ -237,6 +295,19 @@ function getFormattedDate(date) {
         + ("0" + date.getDate()).slice(-2);
 }
 
+function showStartValueSettingModel(target_at){
+    
+    $("#start_value_target_at").val(target_at);
+    
+    $.ajax("{{ url('/record/startValue') }}?target_at=" + target_at)
+	.done(function(data){
+	    $('#startValue').val(data.value_disp);
+	    $('#startValueSettingModel').modal('show');    
+	});
+	
+    
+    
+}
 
 function writeRecordModel(){
     
@@ -247,6 +318,7 @@ function writeRecordModel(){
 
     $("#record_type_inc").parent().removeClass("active");
     $("#record_type_out").parent().removeClass("active");
+    $("#record_type_card").parent().removeClass("active");
     
     $("#category_code").val("99");
     $("#category_code").selectpicker('render');
@@ -276,9 +348,16 @@ function editRecordModal(id){
 	        //$("input:radio[name='type']").val("OUT");
 	        $("#record_type_out").parent().addClass("active");
 	        $("#record_type_inc").parent().removeClass("active");
+	        $("#record_type_card").parent().removeClass("active");
 	    } else if(data.type === 'INC'){
 	        //$("input:radio[name='type']").val("INC");
 	        $("#record_type_inc").parent().addClass("active");
+	        $("#record_type_out").parent().removeClass("active");
+	        $("#record_type_card").parent().removeClass("active");
+	    } else if(data.type === 'CRD'){
+	        //$("input:radio[name='type']").val("INC");
+	        $("#record_type_card").parent().addClass("active");
+	        $("#record_type_inc").parent().removeClass("active");
 	        $("#record_type_out").parent().removeClass("active");
 	    }
 	    
@@ -321,28 +400,70 @@ function deleteRecord(id){
 	   table.ajax.reload();
 	   $('#confirmDeleteModal').modal('hide');
 	});
-	
 }
 
 function format ( d ) {
     // `d` is the original data object for the row
-    var html = '<table width="100%" cellspacing="0" style="padding:0;">'+
-    		'<tr>'+
-    			'<td style="padding:0; margin:0;">'+
-    				'<div class="btn-group">'+
-  						'<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">'+
-    						'Action <span class="caret"></span>'+
-  						'</button>'+
-  						'<ul class="dropdown-menu" role="menu">'+
-    						'<li><a href="javascript:editRecordModal('+ d.id +')">수정</a></li>'+
-    						'<li><a href="javascript:deleteRecordModal('+ d.id +')">삭제</a></li>'+
-    					'</ul>'+
-					'</div>'+
-    			'</td>'+
-    			'<td style="padding:0; margin:0;">'+
-    				'<p class="text-right"><small>Balance : '+d.sum_disp+'</small></p>'+
-    			'</td>'+
-    		'</tr>';
+    
+    var html = '';
+    
+    if(d.type == 'STV'){
+        
+        html = '<table width="100%" cellspacing="0" style="padding:0;">'+
+        		'<tr>'+
+        			'<td style="padding:0; margin:0;">'+
+        				'<div class="btn-group">'+
+      						'<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">'+
+        						'Action <span class="caret"></span>'+
+      						'</button>'+
+      						'<ul class="dropdown-menu" role="menu">'+
+        						'<li><a href="javascript:startValueModal(\''+ d.id +'\')">수정</a></li>'+
+        					'</ul>'+
+    					'</div>'+
+        			'</td>'+
+        			'<td style="padding:0; margin:0;">'+
+        			'</td>'+
+        		'</tr>'+'</table>';
+        
+    }else if(d.type == 'OUT' || d.type == 'INC'){
+    
+        html = '<table width="100%" cellspacing="0" style="padding:0;">'+
+        		'<tr>'+
+        			'<td style="padding:0; margin:0;">'+
+        				'<div class="btn-group">'+
+      						'<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">'+
+        						'Action <span class="caret"></span>'+
+      						'</button>'+
+      						'<ul class="dropdown-menu" role="menu">'+
+        						'<li><a href="javascript:editRecordModal('+ d.id +')">수정</a></li>'+
+        						'<li><a href="javascript:deleteRecordModal('+ d.id +')">삭제</a></li>'+
+        					'</ul>'+
+    					'</div>'+
+        			'</td>'+
+        			'<td style="padding:0; margin:0;">'+
+        				'<p class="text-right"><small>현금 잔액 : '+d.balance_disp+'</small></p>'+
+        			'</td>'+
+        		'</tr>'+'</table>';
+    }else if(d.type == 'CRD'){
+    
+        html = '<table width="100%" cellspacing="0" style="padding:0;">'+
+        		'<tr>'+
+        			'<td style="padding:0; margin:0;">'+
+        				'<div class="btn-group">'+
+      						'<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">'+
+        						'Action <span class="caret"></span>'+
+      						'</button>'+
+      						'<ul class="dropdown-menu" role="menu">'+
+        						'<li><a href="javascript:editRecordModal('+ d.id +')">수정</a></li>'+
+        						'<li><a href="javascript:deleteRecordModal('+ d.id +')">삭제</a></li>'+
+        					'</ul>'+
+    					'</div>'+
+        			'</td>'+
+        			'<td style="padding:0; margin:0;">'+
+        				'<p class="text-right"><small>카드 지출 합 : '+d.card_sum_disp+'</small></p>'+
+        			'</td>'+
+        		'</tr>'+'</table>';
+    }
     		
     return html;
 }
@@ -357,7 +478,7 @@ $(function(){
         "searching": false,
         "columnDefs": [
     		{ "targets": 0, "width": "12%"},
-    		{ "targets": 1, "width": "12%"},
+    		{ "targets": 1, "width": "8%"},
     		{ "targets": 2, "width": "12%"},
     		{ "targets": 3, "width": "auto"},
     		{ "targets": 4, "width": "20%"}
@@ -366,17 +487,26 @@ $(function(){
             { "data": "date_disp"		, "className": "dt-head-center dt-body-center details-control record small" },
             { "data": "type_name"		, "className": "dt-center record small" },
             { "data": "category_name"	, "className": "dt-center record small" },
-            { "data": "context"			, "className": "dt-head-center dt-body-left record pd" },
+            { "data": "context"			, "className": "dt-head-center dt-body-left record pd context" },
             { "data": "value_disp"		, "className": "dt-head-center dt-body-right record small" }
         ],
   		"fnCreatedRow": function( nRow, aData, iDataIndex ) {
-  			//console.log(aData);
-			if ( aData['type'] == "OUT" )
-			{
-				$('td', nRow).css('color', '#9e0000');
-			}else{
-				$('td', nRow).css('color', '#0012b8');
+  			//console.log(nRow);
+  			if( aData['type'] == "STV" ){
+  			    $('td.context', nRow).html($('td.context', nRow).html() + " <button id='btnStartValueSetting' onClick='showStartValueSettingModel(\"" + aData['id'] + "\");' class='btn btn-warning btn-xs'>시작 금액 설정</button>");    
+  			} else if ( aData['type'] == "INC" ){
+				$('td', nRow).css('color', '#428bca');
+			} else if ( aData['type'] == "OUT" ){
+			    $('td', nRow).css('color', '#aa0000');
+			} else if ( aData['type'] == "CRD" ){
+			    $('td', nRow).css('color', '#FF8600');
 			}
+			
+			$("#card_sum").html(aData['card_sum_disp']);
+			$("#inc_sum").html(aData['inc_sum_disp']);
+			$("#out_sum").html(aData['out_sum_disp']);
+			$("#balance").html(aData['balance_disp']);
+			
 	    }
     });
     
@@ -384,21 +514,25 @@ $(function(){
     // Add event listener for opening and closing details
     $('#records tbody').on('click', 'td.record', function () {
         var tr = $(this).closest('tr');
-        // console.log(tr);
+        //console.log(tr);
         // console.log(table);
         
         var row = table.row( tr );
- 
-        if ( row.child.isShown() ) {
-            // This row is already open - close it
-            row.child.hide();
-        tr.removeClass('shown');
+        
+        if( row.data().type != "STV" ){
+        
+            if ( row.child.isShown() ) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                // Open this row
+                row.child( format(row.data()) ).show();
+                tr.addClass('shown');
+            }
         }
-        else {
-            // Open this row
-            row.child( format(row.data()) ).show();
-            tr.addClass('shown');
-        }
+        
     });
     
     $('form[data-async]').on('submit', function(event) {
@@ -421,7 +555,8 @@ $(function(){
             //console.log(textStatus);
             //location.reload();
             table.ajax.reload();
-            $('#writeModal').modal('hide');
+            $('.modal').modal('hide');
+            
         }).fail(function(jqXHR, textStatus, errorThrown){
             console.log(textStatus);
         });
@@ -445,7 +580,7 @@ $(function(){
     $('#btnWriteRecord').on('click', function(){
         writeRecordModel();
     });
-    
+
 });
 
 

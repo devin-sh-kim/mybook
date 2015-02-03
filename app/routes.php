@@ -95,6 +95,8 @@ Route::group(array('before' => 'auth'), function()
 
     // Moneybook
     Route::resource('moneybook',    'MoneyBookController');
+    Route::get('record/startValue', 'RecordController@getStartValue');
+    Route::post('record/startValue', 'RecordController@updateStartValue');
     Route::resource('record',       'RecordController');
     Route::resource('fixExpRecord', 'FixExpRecordController');
     Route::get('fixExpRecord.json', 'FixExpRecordController@listJson');
