@@ -109,7 +109,7 @@ table#total td.value {
 			</div>
 			<div class="modal-body">
 				<div>
-					{{ Form::open(array('id' => 'recordForm', 'url' => 'record', 'class' => 'form-horizontal style-form', 'data-async')) }}
+					{{ Form::open(array('id' => 'recordForm', 'url' => 'record', 'class' => 'form-horizontal style-form', 'data-async', 'autocomplete' => 'off')) }}
 
                         <div class="form-group">
                             {{ Form::label('target_at', '날짜', array('class' => 'col-sm-2 control-label')); }}
@@ -220,7 +220,7 @@ table#total td.value {
 			</div>
 			<div class="modal-body">
 
-	                    {{ Form::open(array('id' => 'startValueForm', 'url' => 'record/startValue', 'class' => 'form-horizontal style-form', 'data-async')) }}
+	                    {{ Form::open(array('id' => 'startValueForm', 'url' => 'record/startValue', 'class' => 'form-horizontal style-form', 'data-async', 'autocomplete' => 'off')) }}
                         <input type="hidden" name="target_at" id="start_value_target_at"/>
                         <div class="form-group">
                             {{ Form::label('value', '시작 금액', array('class' => 'col-sm-2 control-label')); }}
@@ -558,7 +558,7 @@ $(function(){
             $('.modal').modal('hide');
             
         }).fail(function(jqXHR, textStatus, errorThrown){
-            console.log(textStatus);
+            //console.log(textStatus);
         });
  
         event.preventDefault();
