@@ -57,10 +57,10 @@
 				</div>
 
 				<div class="form-group">
-					<input name="email" type="text" class="form-control" placeholder="Email" autofocus>
+					<input name="email" type="text" class="form-control" placeholder="Email" autofocus autocomplete="off">
 				</div>
 				<div class="form-group">
-					<input name="password" type="password" class="form-control" placeholder="Password">
+					<input name="password" type="password" class="form-control" placeholder="Password" autocomplete="off">
 				</div>
 				<div class="form-group">
 				    <label>

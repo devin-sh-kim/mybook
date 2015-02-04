@@ -21,6 +21,11 @@ table.dataTable .record.pd {
 table#total td.value {
     text-align: right;
 }
+
+.koreanValue{
+    text-align: right;
+    color: #F0AD4E;
+}
 </style>
 
 @stop
@@ -149,7 +154,10 @@ table#total td.value {
                         <div class="form-group">
                             {{ Form::label('value', '금액', array('class' => 'col-sm-2 control-label')); }}
                             <div class="col-sm-8">
-                                {{ Form::text('value', '', array('class' => 'form-control number', 'min' => '1', 'placeholder' => '금액을 입력하세요', 'id'=>'value', 'onkeypress'=>'validate(event)' , 'style'=>'text-align:right;')); }}
+                                {{ Form::number('value', '', array('class' => 'form-control', 'min' => '1', 'placeholder' => '금액을 입력하세요', 'id'=>'recordValue', 'style'=>'text-align:right;')); }}
+                            </div>
+                            <div class="col-sm-8 col-sm-offset-2">
+                                <p class="form-control-static koreanValue" id="recordKoreanValue">원</p>
                             </div>
                         </div>
                         
@@ -160,13 +168,13 @@ table#total td.value {
                                     <?php $grpOpen = 0; ?>
                                     @foreach ($categories as $category)
                                         @if (  $category->code === "99" || (strpos($category->parent_code, "01") === 0) )
-                                            @if ( $category->level === "1" )
+                                            @if ( $category->level == "1" )
                                                 @if( $grpOpen != 0 )
                                                 </optgroup>
                                                 @endif
                                                 <optgroup label="{{ $category->disp_name }}">
                                                 <?php $grpOpen = 1;?>
-                                            @elseif  ( $category->level === "2" )
+                                            @elseif  ( $category->level == "2" )
                                                 <option value="{{ $category->code }}">{{ $category->disp_name }}</option>
                                             @else
                                                 <option value="{{ $category->code }}">{{ $category->disp_name }}</option>
@@ -225,7 +233,7 @@ table#total td.value {
                         <div class="form-group">
                             {{ Form::label('value', '시작 금액', array('class' => 'col-sm-2 control-label')); }}
                             <div class="col-sm-8">
-                                {{ Form::text('value', '', array('class' => 'form-control number', 'min' => '1', 'placeholder' => '금액을 입력하세요', 'id'=>'startValue', 'onkeypress'=>'validate(event)' , 'style'=>'text-align:right;')); }}
+                                {{ Form::text('value', '', array('class' => 'form-control number', 'min' => '1', 'placeholder' => '금액을 입력하세요', 'id'=>'startValue', 'style'=>'text-align:right;')); }}
                             </div>
                         </div>
 
@@ -265,6 +273,7 @@ table#total td.value {
 
 var table;
 
+/*
 function validate(evt) {
   var theEvent = evt || window.event;
   var key = theEvent.keyCode || theEvent.which;
@@ -275,6 +284,7 @@ function validate(evt) {
     if(theEvent.preventDefault) theEvent.preventDefault();
   }
 }
+*/
 
 function numberWithCommas(x) {
     var parts = x.toString().split(".");
@@ -564,6 +574,21 @@ $(function(){
         event.preventDefault();
     });
     
+    
+    $('#recordValue').keyup(function(event) {
+        console.log(event.which);
+        if(event.which >= 37 && event.which <= 40){
+            event.preventDefault();
+        }
+        
+        $(this).val(function(index, value) {
+            $("#recordKoreanValue").html(dispKoreanNumber(value) + " 원");
+            return value;
+        });
+        
+    });
+    
+    /*
     $('input.number').keyup(function(event) {
 
         // skip for arrow keys
@@ -576,13 +601,32 @@ $(function(){
             return numberWithCommas(value); // add commas back in
         });
     });
-
+    */
+    
     $('#btnWriteRecord').on('click', function(){
         writeRecordModel();
     });
 
 });
 
+
+function dispKoreanNumber(value){
+
+   var hanA = new Array("","일","이","삼","사","오","육","칠","팔","구","십");
+   var danA = new Array("","십","백","천","","십","백","천","","십","백","천");
+   var num = value;
+   var result = "";
+    for(var i=0; i < num.length; i++) {
+        var str = "";
+        var han = hanA[num.charAt(num.length-(i+1))];
+        if(han != "") str = han+danA[i];
+        if(i == 4) str += "만 ";
+        if(i == 8) str += "억 ";
+        result = str + result;
+    }
+    //console.log(result + " 원");
+    return result;
+}
 
 </script>
 @stop
