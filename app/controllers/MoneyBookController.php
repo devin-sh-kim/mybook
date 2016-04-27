@@ -75,24 +75,7 @@ class MoneyBookController extends \BaseController {
 		//
 		//dd(Input::all());
 		
-		$target_at 		= Input::get('target_at');
-		$type 			= Input::get('type');
-		$context 		= Input::get('context');
-		$value 			= Input::get('value');
-	
-		
-		if(preg_match("/^[0-9,]+$/", $value)) 
-			$value = str_replace(',', '', $value);
-		
-		$record 		= new Record;
-	    
-	    $record->user_id    = Auth::user()->id;
-		$record->target_at 	= $target_at;
-		$record->type 		= $type;
-		$record->context 	= $context;
-		$record->value 		= $value;
-		
-        $record->save();
+
 		
 	}
 

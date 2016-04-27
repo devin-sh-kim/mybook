@@ -232,7 +232,14 @@ class RecordController extends \BaseController {
 		$type 			= Input::get('type');
 		$context 		= Input::get('context');
 		$value 			= Input::get('value');
-		$category_code	= Input::get('category_code');
+		$inc_category_code	= Input::get('inc_category_code');
+		$out_category_code	= Input::get('out_category_code');
+		
+		if($type == "INC"){
+			$category_code = $inc_category_code;
+		}else{
+			$category_code = $out_category_code;
+		}
 		
 		//dd($category_code);
 		if(!$category_code){
@@ -310,7 +317,16 @@ class RecordController extends \BaseController {
 		$type			= Input::get('type');
 		$context 		= Input::get('context');
 		$value 			= Input::get('value');
-		$category_code	= Input::get('category_code');
+		
+		$inc_category_code	= Input::get('inc_category_code');
+		$out_category_code	= Input::get('out_category_code');
+		
+		if($type == "INC"){
+			$category_code = $inc_category_code;
+		}else{
+			$category_code = $out_category_code;
+		}
+		
 		
 		if(!$category_code){
 			$category_code = '99';

@@ -124,11 +124,11 @@ table#total td.value {
                         </div>
 
                         <div class="form-group">
-                            {{ Form::label('type', '수입/지출', array('class' => 'col-sm-2 control-label')); }}
+                            {{ Form::label('type', '구분', array('class' => 'col-sm-2 control-label')); }}
                             <div class="col-sm-8">
                                 <div class="row">
                                     <div class="col-sm-12">
-                                        <div class="btn-group btn-group-justified" data-toggle="buttons">
+                                        <div class="btn-group btn-group-justified" data-toggle="buttons" id="recordFormTypeBtnGroup">
                                             <label class="btn btn-default">
                                                 <input type="radio" name="type" id="record_type_inc" value="INC">수입
                                             </label>
@@ -139,35 +139,19 @@ table#total td.value {
                                                 <input type="radio" name="type" id="record_type_card" value="CRD">카드 사용
                                             </label>
                                 		</div>
+                                		<p class="form-control-static" id="recordFormTypeLabel"></p>
                                 	</div>
                                 </div>
 							</div>
 						</div>
                         
                         <div class="form-group">
-                            {{ Form::label('context', '내역', array('class' => 'col-sm-2 control-label')); }}
+                            {{ Form::label('inc_category_code', '수입 분류', array('class' => 'col-sm-2 control-label')); }}
                             <div class="col-sm-8">
-                                {{ Form::text('context', '', array('class' => 'form-control', 'placeholder' => '내역을 입력하세요')); }}
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            {{ Form::label('value', '금액', array('class' => 'col-sm-2 control-label')); }}
-                            <div class="col-sm-8">
-                                {{ Form::number('value', '', array('class' => 'form-control', 'min' => '1', 'placeholder' => '금액을 입력하세요', 'id'=>'recordValue', 'style'=>'text-align:right;')); }}
-                            </div>
-                            <div class="col-sm-8 col-sm-offset-2">
-                                <p class="form-control-static koreanValue" id="recordKoreanValue">원</p>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            {{ Form::label('value', '구분', array('class' => 'col-sm-2 control-label')); }}
-                            <div class="col-sm-8">
-                                <select class="selectpicker" name="category_code" id="category_code">
+                                <select class="selectpicker" name="inc_category_code" id="inc_category_code">
                                     <?php $grpOpen = 0; ?>
                                     @foreach ($categories as $category)
-                                        @if (  $category->code === "99" || (strpos($category->parent_code, "01") === 0) )
+                                        @if (  $category->code == "99" || (strpos($category->parent_code, "02") === 0) )
                                             @if ( $category->level == "1" )
                                                 @if( $grpOpen != 0 )
                                                 </optgroup>
@@ -188,6 +172,52 @@ table#total td.value {
                                 </select>
                             </div>
                         </div>
+                        
+                        <div class="form-group">
+                            {{ Form::label('out_category_code', '지출 분류', array('class' => 'col-sm-2 control-label')); }}
+                            <div class="col-sm-8">
+                                <select class="selectpicker" name="out_category_code" id="out_category_code">
+                                    <?php $grpOpen = 0; ?>
+                                    @foreach ($categories as $category)
+                                        @if (  $category->code == "99" || (strpos($category->parent_code, "01") === 0) )
+                                            @if ( $category->level == "1" )
+                                                @if( $grpOpen != 0 )
+                                                </optgroup>
+                                                @endif
+                                                <optgroup label="{{ $category->disp_name }}">
+                                                <?php $grpOpen = 1;?>
+                                            @elseif  ( $category->level == "2" )
+                                                <option value="{{ $category->code }}">{{ $category->disp_name }}</option>
+                                            @else
+                                                <option value="{{ $category->code }}">{{ $category->disp_name }}</option>
+                                            @endif
+                                        @endif
+                                    @endforeach
+                                    @if( $grpOpen != 0 )
+                                        </optgroup>
+                                    @endif
+                                                
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ Form::label('context', '내역', array('class' => 'col-sm-2 control-label')); }}
+                            <div class="col-sm-8">
+                                {{ Form::text('context', '', array('class' => 'form-control', 'placeholder' => '내역을 입력하세요')); }}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ Form::label('value', '금액', array('class' => 'col-sm-2 control-label')); }}
+                            <div class="col-sm-8">
+                                {{ Form::number('value', '', array('class' => 'form-control', 'min' => '1', 'placeholder' => '금액을 입력하세요', 'id'=>'recordValue', 'style'=>'text-align:right;')); }}
+                            </div>
+                            <div class="col-sm-8 col-sm-offset-2">
+                                <p class="form-control-static koreanValue" id="recordKoreanValue">원</p>
+                            </div>
+                        </div>
+                        
                         
                         
                         <button type="submit" class="btn btn-primary btn-lg btn-block">확인</button>
@@ -233,7 +263,7 @@ table#total td.value {
                         <div class="form-group">
                             {{ Form::label('value', '시작 금액', array('class' => 'col-sm-2 control-label')); }}
                             <div class="col-sm-8">
-                                {{ Form::text('value', '', array('class' => 'form-control number', 'min' => '1', 'placeholder' => '금액을 입력하세요', 'id'=>'startValue', 'style'=>'text-align:right;')); }}
+                                {{ Form::number('value', '', array('class' => 'form-control', 'min' => '1', 'placeholder' => '금액을 입력하세요', 'id'=>'startValue', 'style'=>'text-align:right;')); }}
                             </div>
                         </div>
 
@@ -286,11 +316,13 @@ function validate(evt) {
 }
 */
 
+/*
 function numberWithCommas(x) {
     var parts = x.toString().split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return parts.join(".");
 }
+*/
 
 function today() {
     return new Date();
@@ -330,13 +362,18 @@ function writeRecordModel(){
     $("#record_type_out").parent().removeClass("active");
     $("#record_type_card").parent().removeClass("active");
     
-    $("#category_code").val("99");
-    $("#category_code").selectpicker('render');
+    $("#inc_category_code").val("99");
+    $("#out_category_code").val("99");
+    
+    $("#inc_category_code").selectpicker('render');
+    $("#out_category_code").selectpicker('render');
     
     //$("input:radio[name='type']").val("INC");
     //$("#record_type_inc").parent().addClass("active");
     
     $("#target_at").val(getFormattedDate(today()));
+    
+    $("#recordKoreanValue").html(dispKoreanNumber($("#recordValue").val()) + " 원");
     
     $('#writeModal').modal('show');
     
@@ -354,31 +391,55 @@ function editRecordModal(id){
 	    console.log(data);
 	    $('#target_at').val(data.target_at);
 	    
-	    if(data.type === 'OUT'){
-	        //$("input:radio[name='type']").val("OUT");
-	        $("#record_type_out").parent().addClass("active");
-	        $("#record_type_inc").parent().removeClass("active");
-	        $("#record_type_card").parent().removeClass("active");
-	    } else if(data.type === 'INC'){
-	        //$("input:radio[name='type']").val("INC");
+	    $("#inc_category_code").val("99");
+        $("#out_category_code").val("99");
+
+        $("#recordFormTypeBtnGroup").hide();
+        $("#recordFormTypeLabel").show();
+        
+        if(data.type === 'INC'){
+	        
 	        $("#record_type_inc").parent().addClass("active");
 	        $("#record_type_out").parent().removeClass("active");
 	        $("#record_type_card").parent().removeClass("active");
+	        
+	        $("#inc_category_code").val(data.category_code);
+	        
+	        $("#recordFormTypeLabel").html("<strong>수입</strong>");
+	        
+        } else if(data.type === 'OUT'){
+	        
+	        $("#record_type_out").parent().addClass("active");
+	        $("#record_type_inc").parent().removeClass("active");
+	        $("#record_type_card").parent().removeClass("active");
+	        
+	        $("#out_category_code").val(data.category_code);
+	        
+	        $("#recordFormTypeLabel").html("<strong>현금 지출</strong>");
+	        
 	    } else if(data.type === 'CRD'){
-	        //$("input:radio[name='type']").val("INC");
+	        
 	        $("#record_type_card").parent().addClass("active");
 	        $("#record_type_inc").parent().removeClass("active");
 	        $("#record_type_out").parent().removeClass("active");
+	        
+	        $("#out_category_code").val(data.category_code);
+
+	        $("#recordFormTypeLabel").html("<strong>카드 사용</strong>");
 	    }
 	    
-	    console.log($("input:radio[name='type']").val());
-	        
-	    $('#context').val(data.context);
-	    $('#value').val(data.value_disp);
+	    $("input:radio[name='type']").val(data.type);
 	    
-	    $("#category_code").val(data.category_code);
-        $("#category_code").selectpicker('render');
+	    console.log($("input:radio[name='type']").val());
+
+	    $('#context').val(data.context);
+	    $('#recordValue').val(data.value);
+	    
+        $("#inc_category_code").selectpicker('render');
+        $("#out_category_code").selectpicker('render');
     
+        
+	    $("#recordKoreanValue").html(dispKoreanNumber($("#recordValue").val()) + " 원");
 	    
 	    // $('#btnDelete').one('click', function(){
 	    //     deleteRecord(id);
@@ -419,21 +480,21 @@ function format ( d ) {
     
     if(d.type == 'STV'){
         
-        html = '<table width="100%" cellspacing="0" style="padding:0;">'+
-        		'<tr>'+
-        			'<td style="padding:0; margin:0;">'+
-        				'<div class="btn-group">'+
-      						'<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">'+
-        						'Action <span class="caret"></span>'+
-      						'</button>'+
-      						'<ul class="dropdown-menu" role="menu">'+
-        						'<li><a href="javascript:startValueModal(\''+ d.id +'\')">수정</a></li>'+
-        					'</ul>'+
-    					'</div>'+
-        			'</td>'+
-        			'<td style="padding:0; margin:0;">'+
-        			'</td>'+
-        		'</tr>'+'</table>';
+        // html = '<table width="100%" cellspacing="0" style="padding:0;">'+
+        // 		'<tr>'+
+        // 			'<td style="padding:0; margin:0;">'+
+        // 				'<div class="btn-group">'+
+      		// 				'<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">'+
+        // 						'Action <span class="caret"></span>'+
+      		// 				'</button>'+
+      		// 				'<ul class="dropdown-menu" role="menu">'+
+        // 						'<li><a href="javascript:startValueModal(\''+ d.id +'\')">수정</a></li>'+
+        // 					'</ul>'+
+    				// 	'</div>'+
+        // 			'</td>'+
+        // 			'<td style="padding:0; margin:0;">'+
+        // 			'</td>'+
+        // 		'</tr>'+'</table>';
         
     }else if(d.type == 'OUT' || d.type == 'INC'){
     
@@ -473,12 +534,32 @@ function format ( d ) {
         				'<p class="text-right"><small>카드 지출 합 : '+d.card_sum_disp+'</small></p>'+
         			'</td>'+
         		'</tr>'+'</table>';
+    }else{
+        html = '<table width="100%" cellspacing="0" style="padding:0;">'+
+        		'<tr>'+
+        			'<td style="padding:0; margin:0;">'+
+        				'<div class="btn-group">'+
+      						'<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">'+
+        						'Action <span class="caret"></span>'+
+      						'</button>'+
+      						'<ul class="dropdown-menu" role="menu">'+
+        						//'<li><a href="javascript:editRecordModal('+ d.id +')">수정</a></li>'+
+        						'<li><a href="javascript:deleteRecordModal('+ d.id +')">삭제</a></li>'+
+        					'</ul>'+
+    					'</div>'+
+        			'</td>'+
+        			'<td style="padding:0; margin:0;">'+
+        				//'<p class="text-right"><small>카드 지출 합 : '+d.card_sum_disp+'</small></p>'+
+        			'</td>'+
+        		'</tr>'+'</table>';
     }
     		
     return html;
 }
 
 $(function(){
+
+    
 
     table = $('#records').DataTable( {
         "ajax": '{{ url("/record?start=" . $range["start"] . "&end=" . $range["end"]); }}',
